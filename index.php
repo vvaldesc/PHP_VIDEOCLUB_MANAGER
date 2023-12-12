@@ -1,3 +1,13 @@
+<?php 
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
+    session_start();
+    if ($_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin()){
+        header('Location: ./pages/homepage.php');
+    } else {
+        $formError;
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -6,6 +16,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <title>Iniciar Sesión - Videoclub</title>
 
+        
         <!-- Agrega el enlace al archivo CSS de Bootstrap -->
         <!--===============================================================================================-->	
         <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
@@ -30,15 +41,16 @@
         <link rel="stylesheet" type="text/css" href="css/main.css">
         <!--===============================================================================================-->
 
+        
     </head>
-    <body class="bg-light">
+    <body class="bg-dark">
 
-        <div class="container mt-5">
+        <div class="container mx-auto mt-5">
 
             <!-- Section: Design Block -->
-            <section class="">
+            <section>
                 <!-- Jumbotron -->
-                <div class="px-4 py-5 px-md-5 text-center text-lg-start" style="background-color: hsl(0, 0%, 96%)">
+                <div class="px-2 py-5 px-md-5 text-center text-lg-start" style="background-color: hsl(0, 0%, 96%)">
                     <div class="container">
                         <div class="row gx-lg-5 align-items-center">
                             <div class="col-lg-6 mb-5 mb-lg-0">
@@ -55,12 +67,13 @@
                             <div class="col-lg-6 mb-5 mb-lg-0">
                                 <div class="card">
                                     <div class="card-body py-5 px-md-5">
-                                        <form>
+                                        <form method="POST" class="mt-4 p-4 d-flex flex-column " action='<?= $_SERVER["PHP_SELF"] ?>'>
                                             <span class="login100-form-title p-b-26">
                                                 Welcome
-                                            </span>                                            
+                                            </span>   
+                                                                                       
                                             <div class="wrap-input100 validate-input" data-validate = "Valid email is: a@b.c">
-                                                <input class="input100" type="text" name="email">
+                                                <input class="input100" value="<?= isset($_POST["usr"]) ? $_POST["usr"] : "" ?>" type="text" name="usr">
                                                 <span class="focus-input100" data-placeholder="Email"></span>
                                             </div>
 
@@ -71,7 +84,7 @@
                                                 <input class="input100" type="password" name="pass">
                                                 <span class="focus-input100" data-placeholder="Password"></span>
                                             </div>
-
+                                            
                                             <!-- Submit button -->
                                             <button type="submit" class="btn btn-primary btn-block mb-4">
                                                 Sign up

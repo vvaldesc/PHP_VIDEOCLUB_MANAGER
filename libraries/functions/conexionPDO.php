@@ -1,6 +1,6 @@
 <?php
-include $_SERVER["DOCUMENT_ROOT"]."/Aplicacion_funcional_PHP/libraries/conexion.php";
-include_once $_SERVER["DOCUMENT_ROOT"]."/Aplicacion_funcional_PHP/libraries/funciones.php";
+include_once $_SERVER["DOCUMENT_ROOT"]."/Aplicacion_funcional_PHP/libraries/functions/conexion.php";
+include_once $_SERVER["DOCUMENT_ROOT"]."/Aplicacion_funcional_PHP/libraries/functions/funciones.php";
 
 
 
