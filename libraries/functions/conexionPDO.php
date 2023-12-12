@@ -20,6 +20,12 @@ function extraerTablas($sql) {
         mensajeError("Error general ");
     }
 }
+
+function comprobarLog(){
+    $tabla = extraerTablas($sql = "SHOW TABLES");
+    return (in_array("Log", $tabla[0])) ? true : false;
+}
+
 function comprobarBD(){
     $creada=false;
     try {
@@ -111,40 +117,26 @@ function anadirForanea($tabla,$foranea,$tablaForanea){
     $stmt->execute();
     
 }
-function crearTabla($tabla, $columnas, $primaryKeys=array()) {
-
-
-    //$BD= conexionPDO();
+function crearTabla($tabla, $columnas, $primaryKeys = array()) {
     $BD = conexionPDO();
+    $columnasSql = "";
 
-    $result = extraerTablas("SHOW TABLES LIKE '$tabla'");
-    if (count($result)==0) {
-        $columnasSql = "";
-        foreach ($columnas as $column => $tipo) {
-            if (!empty($primaryKeys)) {
-                $enc=false;     $i=0;
-                while (!$enc && $i<count($primaryKeys)) {
-                    if ($primaryKeys[$i]==$column) {
-                        $tipo.=" PRIMARY KEY";
-                        unset($primaryKeys[$i]);
-                        $primaryKeys= array_values($primaryKeys);
-                    }
-
-                }
-                $i++;
-            }
-            $columnasSql .= "" . $column . " " . $tipo . ", ";
+    foreach ($columnas as $column => $tipo) {
+        if (!empty($primaryKeys) && in_array($column, $primaryKeys)) {
+            $tipo .= " PRIMARY KEY";
+            // Eliminar la columna de las primary keys
+            unset($primaryKeys[array_search($column, $primaryKeys)]);
         }
-        
-        //Esta función elimina la ultima coma
-        $columnasSql = rtrim($columnasSql, ', ');
-        $sql = "CREATE TABLE " . $tabla . " (".$columnasSql.")";
-        $BD->exec($sql);
-    } else {
-        echo "La tabla $tabla ya existe, no es necesario crearla.";
-        //throw new Exception(mensajeError("(crearTabla): Todos los parámetros tienen que ser numéricos"));
+        $columnasSql .= "$column $tipo, ";
     }
+
+    // Eliminar la última coma y espacio en blanco
+    $columnasSql = rtrim($columnasSql, ', ');
+
+    $sql = "CREATE TABLE $tabla ($columnasSql)";
+    $BD->exec($sql);
 }
+
 
 function eliminarTabla($tabla,$fk = null) {
 

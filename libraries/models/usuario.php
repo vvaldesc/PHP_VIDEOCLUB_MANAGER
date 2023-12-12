@@ -1,6 +1,6 @@
 <?php
 
-include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/log.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/log.php';
 
 class Usuario {
 
@@ -28,8 +28,14 @@ class Usuario {
     public function __toString() {
         return "Usuario[id={$this->id}, username={$this->username}, rol={$this->rol}]";
     }
-    
-    
+
+    public function actualizarSesion(&$sesion_aux,$tabla) {
+        $sesion_aux['id'] = $tabla[0]["id"];
+        $sesion_aux['username'] = $tabla[0]["username"];
+        $sesion_aux['contraseña'] = $tabla[0]["password"];
+        $sesion_aux['rol'] = $tabla[0]["rol"];
+    }
+
     public function __destruct() {
         // Código de limpieza, si es necesario
     }
