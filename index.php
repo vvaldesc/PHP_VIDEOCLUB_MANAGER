@@ -7,7 +7,7 @@
         //Refreshing session values
         $miUsuario->actualizarSesion($_SESSION,$tabla);
         //Heading to homepage
-        header('Location: ./pages/homepage.php');
+        header('Location: ./pages/homepage.php?miUsuario='.$_POST["miUsuario"]);
     } else if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST"){
         $formError;
         //Creating error log instance
@@ -77,6 +77,9 @@
                                 <div class="card">
                                     <div class="card-body py-5 px-md-5">
                                         <form method="POST" class="mt-4 p-4 d-flex flex-column " action='<?= $_SERVER["PHP_SELF"] ?>'>
+                                            
+                                            <input type="hidden" name="miUsuario" value="<?php echo isset($miUsuario) ? base64_encode(serialize($miUsuario)) : ''; ?>">
+                                            
                                             <span class="login100-form-title p-b-26">
                                                 Welcome
                                             </span>   

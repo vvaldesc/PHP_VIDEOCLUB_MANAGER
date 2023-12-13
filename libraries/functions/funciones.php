@@ -4,7 +4,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/conexionPDO.php';
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/usuario.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/usuario.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/pelicula.php';
 
 /**
  * Comprueba si el usuario y contraseña son correctos para acceder a la aplicación.
@@ -43,37 +43,33 @@ function crearInstanciaLogError($username) {
     new Log(null, $username, true);
 }
 
-function imprimirTabla() {
-    echo '<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
-    </tr>
-  </tbody>
-</table>';
+function crearInstanciasPelicula($tabla) {
+    $arrPeliculas=array();
+    foreach ($tabla as $pelicula) {
+        $peliculaAux = new Pelicula($pelicula["id"], $pelicula["titulo"], $pelicula["genero"], $pelicula["pais"], $pelicula["anyo"], $pelicula["cartel"]);
+        array_push($arrPeliculas,$peliculaAux);
+    }
+    return $peliculaAux;
+}
+
+function imprimirTabla($arrPeliculas, $rol) {
+    
+    echo '<table class="table">';
+    echo '<thead><tr>';
+    foreach (array_keys($arrPeliculas) as $columna) {
+        echo '<th scope="col">' . $columna . '</th>';
+    }
+    echo '</tr></thead><tbody>';
+
+    for ($i = 1; $i < count($data); $i++) {
+        echo '<tr>';
+        foreach ($data[$i] as $value) {
+            echo '<td>' . $value . '</td>';
+        }
+        echo '</tr>';
+    }
+
+    echo '</tbody></table>';
 }
 
 function mensajeError($message) {

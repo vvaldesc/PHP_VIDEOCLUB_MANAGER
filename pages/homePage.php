@@ -56,7 +56,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && comprobarLogin()) {
                     </table>
                 </div>                    
 
-                <?php imprimirTabla(); ?>
+                <?php 
+                $miUsuario=$_GET["miUsuario"];
+                $tabla=extraerTablas("SELECT * FROM PELICULAS");
+                $arrPeliculas = crearInstanciasPelicula($tabla);
+                unset($tabla);
+                imprimirTabla($arrPeliculas,$miUsuario->getRol()); 
+                
+                ?>
                 
             </main>
 
