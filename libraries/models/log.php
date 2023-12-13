@@ -14,7 +14,7 @@ class Log {
         }
                 
         //Si no existe la tabla la crea, además inserta
-        !comprobarLog() ? crearTabla("vendedores", array("texto" => "varchar(255)")) : null;
+        !comprobarLog() ? crearTabla("log", array("texto" => "varchar(255)")) : null;
         insertar("Log", array("texto" => $this->texto));
         //Aquí debería llamar al destructor
         $this->__destruct();

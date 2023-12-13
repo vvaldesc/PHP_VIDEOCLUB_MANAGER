@@ -1,6 +1,6 @@
 <?php
-include_once $_SERVER["DOCUMENT_ROOT"]."/Aplicacion_funcional_PHP/libraries/functions/conexion.php";
-include_once $_SERVER["DOCUMENT_ROOT"]."/Aplicacion_funcional_PHP/libraries/functions/funciones.php";
+include_once $_SERVER["DOCUMENT_ROOT"]."/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/conexion.php";
+include_once $_SERVER["DOCUMENT_ROOT"]."/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php";
 
 
 
@@ -22,8 +22,8 @@ function extraerTablas($sql) {
 }
 
 function comprobarLog(){
-    $tabla = extraerTablas($sql = "SHOW TABLES");
-    return (in_array("Log", $tabla[0])) ? true : false;
+    $tabla = extraerTablas("SHOW TABLES LIKE 'LOG'");
+    return count($tabla)==1;
 }
 
 function comprobarBD(){
