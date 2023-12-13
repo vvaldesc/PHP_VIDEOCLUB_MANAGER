@@ -1,19 +1,21 @@
 <?php 
     include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
     session_start();
-    if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin($tabla)){
+    if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin()){
         //Calling an user instance only if login is succesfull, it creates log instance too
         crearInstanciaUsuario($miUsuario,$tabla);
         //Refreshing session values
         $miUsuario->actualizarSesion($_SESSION,$tabla);
         //Heading to homepage
+        $_POST["miUsuario"]=base64_encode(serialize($miUsuario));
         header('Location: ./pages/homepage.php?miUsuario='.$_POST["miUsuario"]);
     } else if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST"){
         $formError;
         //Creating error log instance
-        crearInstanciaLogError($tabla[0]["username"]);
+        crearInstanciaLogError($_POST["usr"]);
     } else{
         $formError;
+        $miUsuario=null;
     }
 ?>
 
@@ -77,8 +79,8 @@
                                 <div class="card">
                                     <div class="card-body py-5 px-md-5">
                                         <form method="POST" class="mt-4 p-4 d-flex flex-column " action='<?= $_SERVER["PHP_SELF"] ?>'>
-                                            
-                                            <input type="hidden" name="miUsuario" value="<?php echo isset($miUsuario) ? base64_encode(serialize($miUsuario)) : ''; ?>">
+                                            <!--alomejor sobra-->
+                                            <input type="hidden" name="miUsuario" value="<?php echo !$miUsuario==null ? base64_encode(serialize($miUsuario)) : ''; ?>">
                                             
                                             <span class="login100-form-title p-b-26">
                                                 Welcome

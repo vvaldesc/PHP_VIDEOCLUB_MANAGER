@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && comprobarLogin()) {
                 </div>                    
 
                 <?php 
-                $miUsuario=$_GET["miUsuario"];
+                $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
                 $tabla=extraerTablas("SELECT * FROM PELICULAS");
                 $arrPeliculas = crearInstanciasPelicula($tabla);
                 unset($tabla);
