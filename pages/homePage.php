@@ -48,21 +48,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && comprobarLogin()) {
         <div class="container mx-auto mt-5">
 
             <!-- Contenedor principal (main) -->
-            <main class="container m-auto text-center">
-                </<p>text</p>
-                <div class="table-wrap">
-                    <table class="table table-dark table-hover">
-
-                    </table>
-                </div>                    
+            <main class="container m-auto text-center">                 
 
                 <?php 
-                $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
-                $tabla=extraerTablas("SELECT * FROM PELICULAS");
-                $arrPeliculas = crearInstanciasPelicula($tabla);
-                unset($tabla);
-                imprimirTabla($arrPeliculas,$miUsuario->getRol()); 
-                
+                    $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
+                    $tabla=extraerTablas("SELECT * FROM PELICULAS");
+                    $arrPeliculas = crearInstanciasPelicula($tabla);
+                    unset($tabla);
+                    echo entornoFormulario(imprimirTabla($arrPeliculas,$miUsuario->getRol()));
                 ?>
                 
             </main>

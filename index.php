@@ -1,7 +1,7 @@
 <?php 
     include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
     session_start();
-    if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin()){
+    if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin($tabla)){
         //Calling an user instance only if login is succesfull, it creates log instance too
         crearInstanciaUsuario($miUsuario,$tabla);
         //Refreshing session values

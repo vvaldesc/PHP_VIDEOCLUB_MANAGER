@@ -12,7 +12,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
  * @param array $POST Array que contiene los datos del formulario login.
  * 
  */
-function comprobarLogin() {
+function comprobarLogin(&$tabla) {
     if (isset($_POST["pass"]) && isset($_POST["usr"])) {
         if ($_POST["pass"] != '' && $_POST["usr"] != '') {
             try {
@@ -53,53 +53,59 @@ function crearInstanciasPelicula($tabla) {
 }
 
 function imprimirTabla($arrPeliculas, $rol) {
-
-    echo '<table class="table">';
-    echo '<thead><tr>';
-    foreach (array_keys($arrPeliculas) as $columna) {
-        echo '<th scope="col">' . $columna . '</th>';
+    $html = '<table class="table">';
+    $html .= '<thead><tr>';
+    foreach (array_keys(get_object_vars($arrPeliculas[0])) as $columna) {
+        $html .= '<th scope="col">' . $columna . '</th>';
     }
-    echo '<th scope="col">' . count($arrPeliculas) . '</th>';
-    echo '<th scope="col">' . count($arrPeliculas)+1  . '</th>';
+    
+    $rol == 1 ? $html .= imprimirIndicesTabla(count($arrPeliculas)) : null;
 
-    echo '</tr></thead><tbody>';
+    $html .= '</tr></thead><tbody>';
 
-    for ($i = 1; $i < count($arrPeliculas); $i++) {
-        echo '<tr>';
+    for ($i = 0; $i < count($arrPeliculas); $i++) {
+        $html .= '<tr>';
 
-        // Obtén los atributos del objeto actual
         $arrAtributos = get_object_vars($arrPeliculas[$i]);
 
-        // Itera sobre los atributos
         foreach ($arrAtributos as $nombre => $valor) {
-            echo '<td>';
-
-            // Verifica si el atributo es una imagen
+            $html .= '<td>';
             if ($nombre === 'cartel') {
-                echo '<img src="' . $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/assets/img/' . $valor . '" alt="Imagen">';
+                $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/' . $valor . '" alt="Cartel">';
             } else {
-                // Aquí puedes realizar otras comprobaciones o procesamientos según el atributo
-                echo $valor;
+                $html .= $valor;
             }
-
-            echo '</td>';
+            $html .= '</td>';
         }
-        imprimirControlesTabla();
+        
+        $rol == 1 ? $html .= imprimirControlesTabla($i) : null;
 
-        echo '</tr>';
+        // Aquí deberías llamar a la función imprimirControlesTabla y concatenar su resultado a $html
+
+        $html .= '</tr>';
     }
 
+    $html .= '</tbody></table>';
 
-    echo '</tbody></table>';
+    return $html;
 }
 
-function imprimirControlesTabla(){
-            echo '<td>';
-
-                echo 'input';
-
-            echo '</td>';
+function imprimirControlesTabla($row) {
+    $html = '<td>';
+    $html .= '<button type="button" class="btn btn-primary">Primary</button>';
+    $html .= '</td>';
+    $html .= '<td>';
+    $html .= '<button type="button" class="btn btn-secondary">Secondary</button>';
+    $html .= '</td>';
+    return $html;
 }
+
+function imprimirIndicesTabla($max){
+    $html = '<th scope="col">' . $max . '</th>';
+    $html .= '<th scope="col">' . $max + 1 . '</th>';
+    return $html;
+}
+
 
 function mensajeError($message) {
     return '<nav class="navbar bg-body-tertiary bg-danger rounded m-2">
@@ -109,6 +115,10 @@ function mensajeError($message) {
                     </p>
                 </div>
             </nav>';
+}
+
+function entornoFormulario($innerForm) {
+    return '<form>' . $innerForm . '</form>';
 }
 
 ?>
