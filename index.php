@@ -5,7 +5,7 @@
         //Calling an user instance only if login is succesfull, it creates log instance too
         crearInstanciaUsuario($miUsuario,$tabla);
         //Refreshing session values
-        $miUsuario->actualizarSesion($_SESSION,$tabla);
+        //$miUsuario->actualizarSesion($_SESSION);
         //Heading to homepage
         $_POST["miUsuario"]=base64_encode(serialize($miUsuario));
         header('Location: ./pages/homepage.php?miUsuario='.$_POST["miUsuario"]);

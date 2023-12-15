@@ -43,11 +43,20 @@ function crearInstanciaLogError($username) {
     new Log(null, $username, true);
 }
 
-function crearInstanciasPelicula($tabla) {
+function crearInstanciasPelicula($tabla,&$maxID) {
+    $maxID=0;
     $arrPeliculas = array();
     foreach ($tabla as $pelicula) {
-        $peliculaAux = new Pelicula($pelicula["id"], $pelicula["titulo"], $pelicula["genero"], $pelicula["pais"], $pelicula["anyo"], $pelicula["cartel"]);
+        $peliculaAux = new Pelicula(
+            $pelicula["id"],
+            $pelicula["titulo"],
+            $pelicula["genero"],
+            $pelicula["pais"],
+            $pelicula["anyo"],
+            $pelicula["cartel"]
+        );
         array_push($arrPeliculas, $peliculaAux);
+        if ($maxID < intval($pelicula["id"])) $maxID=$pelicula["id"];
     }
     return $arrPeliculas;
 }
@@ -124,11 +133,71 @@ function mensajeError($message) {
  * @param type $datosEnviar
  * @return type
  */
-function entornoFormulario($innerForm, $datosEnviar) {
+function entornoFormulario($innerForm, $miUsuario, $maxIDPeliculas) {
     return '<form method="POST" action=' . $_SERVER["PHP_SELF"] . '>'
             . $innerForm
-            //isset($_SESSION["rol"]) && password_verify('1', $_SESSION['rol']) ? imprimirInputsHiddenForm($datosEnviar) : null
+            . (isset($_SESSION["rol"]) && password_verify('1', $_SESSION['rol']) ? modalAnadirPelicula() : '')
+            . '<input type="hidden" name="miUsuario" value="' . (!empty($miUsuario) ? base64_encode(serialize($miUsuario)) : '') . '">'
+            . '<input type="hidden" name="$maxIDPeliculas" value="' . $maxIDPeliculas . '">'
             . '</form>';
+}
+
+function botonModalAnadirPelicula() {
+    return $html = '
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+                Añadir película
+              </button>';
+}
+
+function modalAnadirPelicula() {
+    return $html = botonModalAnadirPelicula() . '
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Añadir película</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ' . formularioAnadirPelicula() . '
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <input type="submit" class="btn btn-primary" value="Enviar">
+                </div>
+            </div>
+        </div>
+    </div>';
+
+    return $html;
+}
+
+function formularioAnadirPelicula() {
+    return $formulario = '
+    <form method="POST" action=\'' . $_SERVER["PHP_SELF"] . '\'>
+        <div class="form-group">
+            <label for="nombre">Título</label>
+            <input value="' . ($_POST["nuevaPelicula_Titulo"] ?? "") . '"  name="titulo" type="text" class="form-control" id="titulo" placeholder="Título" required>
+        </div>
+        <div class="form-group">
+            <label for="apellidos">Género</label>
+            <input value="' . ($_POST["nuevaPelicula_Genero"] ?? "") . '"  name="genero" type="text" class="form-control" id="genero" placeholder="Genero" required>
+        </div>
+        <div class="form-group">
+            <label for="domicilio">Pais</label>
+            <input value="' . ($_POST["nuevaPelicula_Pais"] ?? "") . '"  name="pais" type="text" class="form-control" id="pais" placeholder="Pais" required>
+        </div>
+        <div class="form-group">
+            <label for="domicilio">Año</label>
+            <input value="' . ($_POST["nuevaPelicula_Anyo"] ?? "") . '"  name="anyo" type="text" class="form-control" id="anyo" placeholder="Año" required>
+        </div>
+        <div class="form-group">
+            <label for="domicilio">Cartel</label>
+            <input value="' . ($_POST["nuevaPelicula_Cartel"] ?? "") . '"  name="cartel" type="text" class="form-control" id="cartel" placeholder="Cartel" required>
+        </div>
+    </form>';
 }
 
 function imprimirInputsHiddenForm($datosEnviar) {
@@ -180,24 +249,21 @@ function funcionalidadPeliculas(&$funcionalidadID) {
             $funcionalidadID = array("funcion" => "modificarPelicula", "id" => $id);
             return "modificarPelicula";
         } else if (strpos($key, "eliminarPeliculaId") === 0) {
+
+
+
             //Devuelve array(eliminarPeliculaId,idPelicula)
             //Si me encuentro en la ultima posicion y nos e han encontrado selectores...
             //Return eliminar solo con ese id
-            if ($i == count($clavePost) - 1) {
-                $id = obtenerID($key);
-                $funcionalidadID = array("funcion" => "eliminarPelicula", "id" => $id);
-            } else {
-                // Iterate over the remaining keys to collect selector IDs.
-                while ($i < count($clavePost)) {
-                    $key = $clavePost[$i];
+            // Iterate over the remaining keys to collect selector IDs.
+            while ($i < count($clavePost)) {
+                $key = $clavePost[$i];
 
-                    if (strpos($key, "selectorPeliculaId") === 0) {
-                        $id = obtenerID($key);
-                        array_push($arrSelectorIDs, $id);
-                    }
-
-                    $i++;
+                if (strpos($key, "selectorPeliculaId") === 0 || strpos($key, "eliminarPeliculaId") === 0) {
+                    $id = obtenerID($key);
+                    array_push($arrSelectorIDs, $id);
                 }
+                $i++;
             }
             // Return the "eliminarPelicula" functionality.
             $funcionalidadID = array("funcion" => "eliminarPelicula", "id" => $arrSelectorIDs);
@@ -206,14 +272,25 @@ function funcionalidadPeliculas(&$funcionalidadID) {
     }
 }
 
-function anadirPeliculas($funcionalidadID) {
-    return 0;
+function anadirPelicula($maxIDPeliculas) {
+    insertar("peliculas", array("id" => $maxIDPeliculas + 1, "titulo" => $_POST["nuevaPelicula_Titulo"], "genero" => $_POST["nuevaPelicula_Genero"], "pais" => $_POST["nuevaPelicula_Pais"], "anyo" => $_POST["nuevaPelicula_Anyo"], "cartel" => $_POST["nuevaPelicula_Cartel"]));
 }
 
-function modificarPeliculas($funcionalidadID) {
+function modificarPelicula() {
     return 0;
 }
 
 function eliminarPeliculas($funcionalidadID) {
-    return 0;
+    if (is_array($funcionalidadID["id"])) {
+        $valores = array(); // Crear un array para almacenar los valores
+        foreach ($funcionalidadID["id"] as $value) {
+            $valores[] = $value; // Agregar cada valor individual al array
+        }
+        $valores = implode(" OR ", $valores); // Combina los valores con " OR "
+    } else {
+        $valores = $funcionalidadID["id"];
+    }
+
+    // Eliminar datos utilizando el valor o la combinación de valores
+    eliminarDatos("peliculas", "id", $valores);
 }

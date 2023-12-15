@@ -1,16 +1,24 @@
 <?php
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
 session_start();
+
+
+if($_SERVER["REQUEST_METHOD"]=="POST"){
+    $miUsuario=unserialize(base64_decode($_POST["miUsuario"]));
+    $miUsuario->actualizarPost($_POST);
+}
+
+
 if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin($tabla)) {
     crearInstanciaUsuario($miUsuario, $tabla);
     $miUsuario->actualizarSesion($_SESSION,$tabla);
 } else if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST") {
     switch (FuncionalidadPeliculas($funcionalidadID)) {
         case "anadirPelicula":
-            anadirPeliculas($funcionalidadID);
+            anadirPelicula($maxIdPeliculas);
             break;
         case "modificarPelicula":
-            modificarPeliculas($funcionalidadID);
+            modificarPelicula();
             break;
         case "eliminarPelicula":
             eliminarPeliculas($funcionalidadID);
@@ -67,17 +75,22 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
             <main class="container m-auto text-center">                 
 
                 <?php 
-                    $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
+                    //$miUsuario=unserialize(base64_decode($_POST["miUsuario"]));
+                    if($_SERVER["REQUEST_METHOD"]=="GET") {
+                        $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
+                        //$miUsuario->actualizarSesion($_SESSION,$tabla);
+                    }
                     $tabla=extraerTablas("SELECT * FROM PELICULAS");
                     if (!isset($arrPeliculas)) {
-                        $arrPeliculas = crearInstanciasPelicula($tabla);
+                        $arrPeliculas = crearInstanciasPelicula($tabla,$maxID);
                     }
                     unset($tabla);
-                    echo entornoFormulario(imprimirTabla($arrPeliculas),array("usuario" => $miUsuario,"peliculas" => $arrPeliculas));
+                    echo entornoFormulario(imprimirTabla($arrPeliculas),array("usuario" => $miUsuario,"peliculas" => $arrPeliculas),$miUsuario,$maxID);
+                    //echo modalAnadirPelicula();
+                    
                 ?>
                 
             </main>
-
             <!-- Aquí va el contenido de tu página -->
 
         </div>

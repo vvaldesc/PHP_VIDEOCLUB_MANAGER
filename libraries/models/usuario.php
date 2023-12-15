@@ -18,6 +18,7 @@ class Usuario {
         $this->password = $password;
         $this->rol = $rol;
         $this->log = new Log($id, $username, $error = false);
+        $this->actualizarSesion($_SESSION);
     }
 
     public function __toString() {
@@ -32,20 +33,18 @@ class Usuario {
      * @param array $sesion_aux
      * @param type $tabla
      */
-    public function actualizarSesion(&$sesion_aux,$tabla) {
-        //$sesion_aux['id'] = $tabla[0]["id"];
-        //$sesion_aux['username'] = $tabla[0]["username"];
-        //$sesion_aux['contraseña'] = $tabla[0]["password"];
-        
-        //Solo guardo el rol
-        //$sesion_aux['rol'] = $tabla[0]["rol"];
-        
+    public function actualizarSesion(&$sesion_aux) {
         //Encriptado
-        $rolEncriptado = password_hash($tabla[0]["rol"], PASSWORD_BCRYPT);
+        $rolEncriptado = password_hash($this->rol, PASSWORD_BCRYPT);
         $sesion_aux['rol'] = $rolEncriptado;
-
     }
-
+    
+    public function actualizarPost(&$post_aux,$tabla) {
+        //Encriptado
+        $passEncriptado = password_hash($tabla[0]["rol"], PASSWORD_BCRYPT);
+        $_POST["contrasena"] = isset($_POST["contrasena"]) ? $passEncriptado : $_POST["contrasena"] = $passEncriptado;
+}
+    
     public function __destruct() {
         // Código de limpieza, si es necesario
     }
