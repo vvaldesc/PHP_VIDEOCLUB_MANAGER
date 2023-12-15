@@ -3,10 +3,23 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
 session_start();
 if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin($tabla)) {
     crearInstanciaUsuario($miUsuario, $tabla);
+    $miUsuario->actualizarSesion($_SESSION,$tabla);
 } else if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST") {
-    comprobarFuncionalidad();
+    switch (FuncionalidadPeliculas($funcionalidadID)) {
+        case "anadirPelicula":
+            anadirPeliculas($funcionalidadID);
+            break;
+        case "modificarPelicula":
+            modificarPeliculas($funcionalidadID);
+            break;
+        case "eliminarPelicula":
+            eliminarPeliculas($funcionalidadID);
+            break;
+        default:
+            break;
+    }
 } else{
-    header('Location: ./pages/homepage.php?miUsuario='.$_POST["miUsuario"]);
+    //header('Location: ./pages/homepage.php?miUsuario='.$_POST["miUsuario"]);
 }
 
 ?>
@@ -60,7 +73,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
                         $arrPeliculas = crearInstanciasPelicula($tabla);
                     }
                     unset($tabla);
-                    echo entornoFormulario(imprimirTabla($arrPeliculas)),array("usuario" => $miUsuario,"peliculas" => $arrPeliculas);
+                    echo entornoFormulario(imprimirTabla($arrPeliculas),array("usuario" => $miUsuario,"peliculas" => $arrPeliculas));
                 ?>
                 
             </main>
