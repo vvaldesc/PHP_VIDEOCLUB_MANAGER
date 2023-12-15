@@ -78,7 +78,7 @@
                             <div class="col-lg-6 mb-5 mb-lg-0">
                                 <div class="card">
                                     <div class="card-body py-5 px-md-5">
-                                        <form method="POST" class="mt-4 p-4 d-flex flex-column " action='<?= $_SERVER["PHP_SELF"] ?>'>
+                                        <form method="POST" class="mt-4 p-4 d-flex flex-column" action='<?= $_SERVER["PHP_SELF"]?>'>
                                             <!--alomejor sobra-->
                                             <input type="hidden" name="miUsuario" value="<?php echo !$miUsuario==null ? base64_encode(serialize($miUsuario)) : ''; ?>">
                                             

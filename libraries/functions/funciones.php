@@ -59,8 +59,7 @@ function imprimirTabla($arrPeliculas, $rol) {
         $html .= '<th scope="col">' . $columna . '</th>';
     }
     
-    $rol == 1 ? $html .= imprimirIndicesTabla(count($arrPeliculas)) : null;
-
+    $rol == 1 ? $html .= imprimirIndicesControlesTabla(count($arrPeliculas)) : null;
     $html .= '</tr></thead><tbody>';
 
     for ($i = 0; $i < count($arrPeliculas); $i++) {
@@ -78,34 +77,31 @@ function imprimirTabla($arrPeliculas, $rol) {
             $html .= '</td>';
         }
         
-        $rol == 1 ? $html .= imprimirControlesTabla($i) : null;
-
+        password_verify('1', $_SESSION['rol']) ? $html .= imprimirControlesTabla($arrAtributos["id"]) : null;
         // Aquí deberías llamar a la función imprimirControlesTabla y concatenar su resultado a $html
-
+        imprimirControlesTabla($arrPeliculas[$i]->getId());
         $html .= '</tr>';
     }
 
     $html .= '</tbody></table>';
-
     return $html;
 }
 
-function imprimirControlesTabla($row) {
+function imprimirControlesTabla($id) {
     $html = '<td>';
-    $html .= '<button type="button" class="btn btn-primary">Primary</button>';
+    $html .= '<button type="submit" class="btn btn-danger">Eliminar</button>';
     $html .= '</td>';
     $html .= '<td>';
-    $html .= '<button type="button" class="btn btn-secondary">Secondary</button>';
+    $html .= '<button type="button" class="btn btn-secondary">Modificar</button>';
     $html .= '</td>';
     return $html;
 }
 
-function imprimirIndicesTabla($max){
+function imprimirIndicesControlesTabla($max){
     $html = '<th scope="col">' . $max . '</th>';
     $html .= '<th scope="col">' . $max + 1 . '</th>';
     return $html;
 }
-
 
 function mensajeError($message) {
     return '<nav class="navbar bg-body-tertiary bg-danger rounded m-2">
@@ -117,8 +113,34 @@ function mensajeError($message) {
             </nav>';
 }
 
-function entornoFormulario($innerForm) {
-    return '<form>' . $innerForm . '</form>';
+/**
+ * Using this function to embrace my table by a form
+ * 
+ * @param type $innerForm
+ * @param type $datosEnviar
+ * @return type
+ */
+function entornoFormulario($innerForm,$datosEnviar) {
+    return '<form method="POST" action='.$_SERVER["PHP_SELF"].'>' 
+            . $innerForm .
+            isset($_SESSION["rol"]) && password_verify('1', $_SESSION['rol']) ? imprimirInputsHiddenForm($datosEnviar) : null
+            . '</form>';
 }
 
+
+function imprimirInputsHiddenForm($datosEnviar){
+    //AQUI ENTRAN TODOS LOS INPUTS QUE HAN DE ENTRAR, DEBERIA DDE SER EL ARRAY DIRECTAMENTE
+    return '<input type="hidden" name="datosEnviar"></input>';
+} 
+
+function comprobarFuncionalidad($arrPeliculas = null, &$arrPliculasAux = null){
+    if (isset($_POST["eliminarPelicula"])) {
+        eliminarDatos("peliculas", "id", $_POST["eliminar"]);
+    } else if (isset($_POST["anadirPelicula"])) {
+        array_push($array, $values);
+        insertar("peliculas", array("id" => count($arrPeliculas),"titulo" => $_POST["peliculaTitulo"],"genero" => $_POST["peliculaGenero"],"pais" => $_POST["peliculaPais"],"anyo" => $_POST["peliculaAnyo"],"cartel" => $_POST["peliculaCartel"]));
+    } else if (isset ($_POST["modificarPelicula"])){
+        modificarTabla("peliculas", $_POST["modificarPelicula"]);
+    }
+}
 ?>

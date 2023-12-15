@@ -24,11 +24,26 @@ class Usuario {
         return "Usuario[id={$this->id}, username={$this->username}, rol={$this->rol}]";
     }
 
+    /**
+     * Uso esta función para actualizar soperglobales que me puedan ser de utilidad
+     * a la hora de acceder a información de forma rápida, esta información estará encriptada
+     * para que sea mínimamente seguro.
+     * 
+     * @param array $sesion_aux
+     * @param type $tabla
+     */
     public function actualizarSesion(&$sesion_aux,$tabla) {
-        $sesion_aux['id'] = $tabla[0]["id"];
-        $sesion_aux['username'] = $tabla[0]["username"];
-        $sesion_aux['contraseña'] = $tabla[0]["password"];
-        $sesion_aux['rol'] = $tabla[0]["rol"];
+        //$sesion_aux['id'] = $tabla[0]["id"];
+        //$sesion_aux['username'] = $tabla[0]["username"];
+        //$sesion_aux['contraseña'] = $tabla[0]["password"];
+        
+        //Solo guardo el rol
+        //$sesion_aux['rol'] = $tabla[0]["rol"];
+        
+        //Encriptado
+        $rolEncriptado = password_hash($tabla[0]["rol"], PASSWORD_BCRYPT);
+        $sesion_aux['rol'] = $rolEncriptado;
+
     }
 
     public function __destruct() {

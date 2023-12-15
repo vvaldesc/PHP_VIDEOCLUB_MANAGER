@@ -214,18 +214,18 @@ function insertar($tabla, $valores) {
         }
 }
 
-function modificarTabla($tabla, $dato, $post) {
+function modificarTabla($tabla, $dato) {
     $BD = conexionPDO();
 
-    $arrayKeys = array_keys($post);
+    $arrayKeys = array_keys($_POST);
 
     if (isset($post["Matricula"])) {
-        if (validarMatricula($post["Matricula"])) {
+        if (validarMatricula($_POST["Matricula"])) {
 
             try {
                 for ($i = 0; $i < count($dato); $i++) {
-                    $result = explode(" ", $post[$arrayKeys[$i + 1]]);
-                    $sql = "UPDATE $tabla SET " . $dato[$i][0] . " = '" . end($result) . "' WHERE " . $dato[0][0] . " = '" . $post[$arrayKeys[1]] . "'";
+                    $result = explode(" ", $_POST[$arrayKeys[$i + 1]]);
+                    $sql = "UPDATE $tabla SET " . $dato[$i][0] . " = '" . end($result) . "' WHERE " . $dato[0][0] . " = '" . $_POST[$arrayKeys[1]] . "'";
                     $stmt = $BD->prepare($sql);
                     $stmt->execute();
                 }
@@ -239,8 +239,8 @@ function modificarTabla($tabla, $dato, $post) {
 
         try {
             for ($i = 0; $i < count($dato); $i++) {
-                $result = explode(" ", $post[$arrayKeys[$i + 1]]);
-                $sql = "UPDATE $tabla SET " . $dato[$i][0] . " = '" . end($result) . "' WHERE " . $dato[0][0] . " = '" . $post[$arrayKeys[1]] . "'";
+                $result = explode(" ", $_POST[$arrayKeys[$i + 1]]);
+                $sql = "UPDATE $tabla SET " . $dato[$i][0] . " = '" . end($result) . "' WHERE " . $dato[0][0] . " = '" . $_POST[$arrayKeys[1]] . "'";
                 $stmt = $BD->prepare($sql);
                 $stmt->execute();
             }

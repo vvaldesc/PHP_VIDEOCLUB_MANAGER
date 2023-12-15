@@ -1,11 +1,14 @@
 <?php
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
 session_start();
-if ($_SERVER["REQUEST_METHOD"] == "POST" && comprobarLogin()) {
-    header('Location: ./pages/homepage.php');
-} else {
-    $formError;
+if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin($tabla)) {
+    crearInstanciaUsuario($miUsuario, $tabla);
+} else if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST") {
+    comprobarFuncionalidad();
+} else{
+    header('Location: ./pages/homepage.php?miUsuario='.$_POST["miUsuario"]);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -53,9 +56,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && comprobarLogin()) {
                 <?php 
                     $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
                     $tabla=extraerTablas("SELECT * FROM PELICULAS");
-                    $arrPeliculas = crearInstanciasPelicula($tabla);
+                    if (!isset($arrPeliculas)) {
+                        $arrPeliculas = crearInstanciasPelicula($tabla);
+                    }
                     unset($tabla);
-                    echo entornoFormulario(imprimirTabla($arrPeliculas,$miUsuario->getRol()));
+                    echo entornoFormulario(imprimirTabla($arrPeliculas)),array("usuario" => $miUsuario,"peliculas" => $arrPeliculas);
                 ?>
                 
             </main>
