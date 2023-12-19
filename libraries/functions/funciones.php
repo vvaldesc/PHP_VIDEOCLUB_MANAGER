@@ -5,6 +5,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/usuario.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/pelicula.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/actor.php';
 
 /**
  * Comprueba si el usuario y contraseña son correctos para acceder a la aplicación.
@@ -61,7 +62,23 @@ function crearInstanciasPelicula($tabla,&$maxID) {
     return $arrPeliculas;
 }
 
-function imprimirTabla($arrPeliculas) {
+function crearInstanciasActores($tabla,&$maxID) {
+    $maxID=0;
+    $arrActores = array();
+    foreach ($tabla as $actor) {
+        $actorAux = new Actor(
+            $actor["id"],
+            $actor["nombre"],
+            $actor["apellidos"],
+            $actor["fotografia"]
+        );
+        array_push($arrActores, $actorAux);
+        if ($maxID < intval($actor["id"])) $maxID=$actor["id"];
+    }
+    return $arrActores;
+}
+
+function imprimirTablaPeliculas($arrPeliculas,$arrTablaExtra = null) {
     $html = '<table class="table">';
     $html .= '<thead><tr>';
     foreach (array_keys(get_object_vars($arrPeliculas[0])) as $columna) {
@@ -79,20 +96,52 @@ function imprimirTabla($arrPeliculas) {
         foreach ($arrAtributos as $nombre => $valor) {
             $html .= '<td>';
             if ($nombre === 'cartel') {
-                $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/' . $valor . '" alt="Cartel">';
+                $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/carteles/' . $valor . '" alt="Cartel">';
             } else {
                 $html .= $valor;
             }
             $html .= '</td>';
         }
-
         password_verify('1', $_SESSION['rol']) ? $html .= imprimirControlesTabla($arrAtributos["id"]) : null;
-        // Aquí deberías llamar a la función imprimirControlesTabla y concatenar su resultado a $html
+        
+        // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
+        
+        //if ($arrTablaExtra !== null) $html .= entornoTr(imprimirReparto($arrTablaExtra[$i]),count($arrPeliculas)+2);
+            
         $html .= '</tr>';
     }
 
     $html .= '</tbody></table>';
     return $html;
+}
+
+function imprimirReparto($arrActores) {
+    for ($index = 0; $index < count($arrActores); $index++) {
+        $html = '<td>';
+        for ($j = 0; $j < count($arrActores[$index]); $j++){
+            $key = array_keys($arrActores)[$j];
+            switch ($key) {
+                case "nombre":
+                     $html .= '<p>'.$arrActores["nombre"].'</p>';
+                    break;
+                case "fotografia":
+                     $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/actores/' . $arrActores["fotografia"] . '" alt="Actor">';
+                    break;
+                case "apellidos":
+                     $html .= '<p>'.$arrActores["apellidos"].'</p>';
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        $html .= '<td>';
+    }
+    return $html;
+}
+
+function entornoTr($innerHTML,$colspan){
+    return '<tr>'.$innerHTML.'</tr>';
 }
 
 function imprimirControlesTabla($id) {
@@ -138,7 +187,7 @@ function entornoFormulario($innerForm, $miUsuario, $maxIDPeliculas) {
             . $innerForm
             . (isset($_SESSION["rol"]) && password_verify('1', $_SESSION['rol']) ? modalAnadirPelicula() : '')
             . '<input type="hidden" name="miUsuario" value="' . (!empty($miUsuario) ? base64_encode(serialize($miUsuario)) : '') . '">'
-            . '<input type="hidden" name="$maxIDPeliculas" value="' . $maxIDPeliculas . '">'
+            . '<input type="hidden" name="maxIDPeliculas" value="' . $maxIDPeliculas . '">'
             . '</form>';
 }
 
@@ -151,53 +200,51 @@ function botonModalAnadirPelicula() {
 
 function modalAnadirPelicula() {
     return $html = botonModalAnadirPelicula() . '
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Añadir película</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    ' . formularioAnadirPelicula() . '
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <input type="submit" class="btn btn-primary" value="Enviar">
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">Añadir película</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ' . inputsAnadirPelicula() . '
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        <input name="anadirPelicula" type="submit" class="btn btn-primary" value="Enviar">
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>';
-
+        </div>';
     return $html;
 }
 
-function formularioAnadirPelicula() {
+function inputsAnadirPelicula() {
     return $formulario = '
-    <form method="POST" action=\'' . $_SERVER["PHP_SELF"] . '\'>
         <div class="form-group">
             <label for="nombre">Título</label>
-            <input value="' . ($_POST["nuevaPelicula_Titulo"] ?? "") . '"  name="titulo" type="text" class="form-control" id="titulo" placeholder="Título" required>
+            <input name="nuevaPelicula_Titulo" type="text" class="form-control" id="titulo" placeholder="Título" required>
         </div>
         <div class="form-group">
             <label for="apellidos">Género</label>
-            <input value="' . ($_POST["nuevaPelicula_Genero"] ?? "") . '"  name="genero" type="text" class="form-control" id="genero" placeholder="Genero" required>
+            <input name="nuevaPelicula_Genero" type="text" class="form-control" id="genero" placeholder="Genero" required>
         </div>
         <div class="form-group">
             <label for="domicilio">Pais</label>
-            <input value="' . ($_POST["nuevaPelicula_Pais"] ?? "") . '"  name="pais" type="text" class="form-control" id="pais" placeholder="Pais" required>
+            <input name="nuevaPelicula_Pais" type="text" class="form-control" id="pais" placeholder="Pais" required>
         </div>
         <div class="form-group">
             <label for="domicilio">Año</label>
-            <input value="' . ($_POST["nuevaPelicula_Anyo"] ?? "") . '"  name="anyo" type="text" class="form-control" id="anyo" placeholder="Año" required>
+            <input name="nuevaPelicula_Anyo" type="number" class="form-control" id="anyo" placeholder="Año" required>
         </div>
         <div class="form-group">
             <label for="domicilio">Cartel</label>
-            <input value="' . ($_POST["nuevaPelicula_Cartel"] ?? "") . '"  name="cartel" type="text" class="form-control" id="cartel" placeholder="Cartel" required>
+            <input name="nuevaPelicula_Cartel" type="text" class="form-control" id="cartel" placeholder="Cartel" required>
         </div>
-    </form>';
+    ';
 }
 
 function imprimirInputsHiddenForm($datosEnviar) {
@@ -227,11 +274,8 @@ function funcionalidadPeliculas(&$funcionalidadID) {
     // Get all keys from $_POST.
     $clavePost = array_keys($_POST);
     $arrSelectorIDs = array();
-
     for ($i = 0; $i < count($clavePost); $i++) {
-
         $key = $clavePost[$i];
-
         // Check if the key contains "selectorMovieId".
         if (strpos($key, "selectorPeliculaId") === 0) {
             // Get the ID and add it to the array of selector IDs.
@@ -249,9 +293,6 @@ function funcionalidadPeliculas(&$funcionalidadID) {
             $funcionalidadID = array("funcion" => "modificarPelicula", "id" => $id);
             return "modificarPelicula";
         } else if (strpos($key, "eliminarPeliculaId") === 0) {
-
-
-
             //Devuelve array(eliminarPeliculaId,idPelicula)
             //Si me encuentro en la ultima posicion y nos e han encontrado selectores...
             //Return eliminar solo con ese id
@@ -286,7 +327,7 @@ function eliminarPeliculas($funcionalidadID) {
         foreach ($funcionalidadID["id"] as $value) {
             $valores[] = $value; // Agregar cada valor individual al array
         }
-        $valores = implode(" OR ", $valores); // Combina los valores con " OR "
+        $valores = implode(", ", $valores); // Combina los valores con " OR "
     } else {
         $valores = $funcionalidadID["id"];
     }

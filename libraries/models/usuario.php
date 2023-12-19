@@ -19,6 +19,7 @@ class Usuario {
         $this->rol = $rol;
         $this->log = new Log($id, $username, $error = false);
         $this->actualizarSesion($_SESSION);
+        //$this_>iniciarCookieSesion();
     }
 
     public function __toString() {
@@ -39,14 +40,20 @@ class Usuario {
         $sesion_aux['rol'] = $rolEncriptado;
     }
     
-    public function actualizarPost(&$post_aux,$tabla) {
+    public function iniciarCookieSesion(&$sesion_aux) {
+        setcookie("nombreSesion", $this->username, time() + 300, "/");
+    }
+    
+    public function actualizarPost(&$post_aux) {
         //Encriptado
-        $passEncriptado = password_hash($tabla[0]["rol"], PASSWORD_BCRYPT);
+        $passEncriptado = password_hash($this->password, PASSWORD_BCRYPT);
         $_POST["contrasena"] = isset($_POST["contrasena"]) ? $passEncriptado : $_POST["contrasena"] = $passEncriptado;
 }
     
     public function __destruct() {
-        // Código de limpieza, si es necesario
+        //setcookie("nombreSesion", -0);
+        session_destroy();
+        $_SESSION=[];
     }
     
     

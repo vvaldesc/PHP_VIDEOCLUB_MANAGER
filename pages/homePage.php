@@ -6,16 +6,16 @@ session_start();
 if($_SERVER["REQUEST_METHOD"]=="POST"){
     $miUsuario=unserialize(base64_decode($_POST["miUsuario"]));
     $miUsuario->actualizarPost($_POST);
+    unset($_POST["muUsuario"]);
 }
 
 
 if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin($tabla)) {
     crearInstanciaUsuario($miUsuario, $tabla);
-    $miUsuario->actualizarSesion($_SESSION,$tabla);
 } else if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST") {
     switch (FuncionalidadPeliculas($funcionalidadID)) {
         case "anadirPelicula":
-            anadirPelicula($maxIdPeliculas);
+            anadirPelicula($_POST["maxIDPeliculas"]);
             break;
         case "modificarPelicula":
             modificarPelicula();
@@ -68,7 +68,6 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
 
     </head>
     <body class="bg-dark">
-
         <div class="container mx-auto mt-5">
 
             <!-- Contenedor principal (main) -->
@@ -78,14 +77,27 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
                     //$miUsuario=unserialize(base64_decode($_POST["miUsuario"]));
                     if($_SERVER["REQUEST_METHOD"]=="GET") {
                         $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
-                        //$miUsuario->actualizarSesion($_SESSION,$tabla);
+                        $miUsuario->actualizarSesion($_SESSION);
                     }
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     $tabla=extraerTablas("SELECT * FROM PELICULAS");
                     if (!isset($arrPeliculas)) {
-                        $arrPeliculas = crearInstanciasPelicula($tabla,$maxID);
+                        $arrPeliculas = crearInstanciasPelicula($tabla,$maxIDPelicula);
+                    }
+                    if (!isset($arrActores)) {
+                        $arrActores = extraerTablas(
+                            "SELECT * FROM ACTORES",true);
+                        $arrActores = crearInstanciasActores($arrActores,$maxIDActor);
                     }
                     unset($tabla);
-                    echo entornoFormulario(imprimirTabla($arrPeliculas),array("usuario" => $miUsuario,"peliculas" => $arrPeliculas),$miUsuario,$maxID);
+
+                    echo entornoFormulario(imprimirTablaPeliculas($arrPeliculas,$arrActores),$miUsuario,$maxIDPelicula);
                     //echo modalAnadirPelicula();
                     
                 ?>

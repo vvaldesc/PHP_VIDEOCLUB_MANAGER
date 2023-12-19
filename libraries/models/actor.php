@@ -16,6 +16,7 @@ class Actor {
         $this->fotografia = $fotografia;
     }
 
+
     // Otros métodos de la clase Actor (si es necesario)
     public function obtenerNombreCompleto() {
         return $this->nombre . ' ' . $this->apellidos;

@@ -3,15 +3,14 @@ include_once $_SERVER["DOCUMENT_ROOT"]."/Ejercicios_UT6_1_Victor_Valdes_Cobos/li
 include_once $_SERVER["DOCUMENT_ROOT"]."/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php";
 
 
-
 //Creo variable global con los parámetros necesarios para la conexión PDO
 //$BD = conexionPDO();
-function extraerTablas($sql) {
+function extraerTablas($sql,$assoc=null) {
      try {
         $BD = conexionPDO();
         $cursorSql = $BD->prepare($sql);
         if ($cursorSql->execute()) {
-            $tabla = $cursorSql->fetchAll();
+            $assoc===null ? $tabla = $cursorSql->fetchAll() : $tabla = $cursorSql->fetchAll(PDO::FETCH_ASSOC);
             return $tabla;
         } else {
             echo "Error en la consulta: " . $BD->error;
@@ -117,6 +116,7 @@ function anadirForanea($tabla,$foranea,$tablaForanea){
     $stmt->execute();
     
 }
+
 function crearTabla($tabla, $columnas, $primaryKeys = array()) {
     $BD = conexionPDO();
     $columnasSql = "";
@@ -136,7 +136,6 @@ function crearTabla($tabla, $columnas, $primaryKeys = array()) {
     $sql = "CREATE TABLE $tabla ($columnasSql)";
     $BD->exec($sql);
 }
-
 
 function eliminarTabla($tabla,$fk = null) {
 
@@ -254,7 +253,7 @@ function eliminarDatos($tabla,$dato,$valor){
     $BD = conexionPDO();
     try {
         
-        $sql ="DELETE FROM $tabla WHERE $dato = '".$valor."'";
+        $sql ="DELETE FROM $tabla WHERE $dato IN (".$valor.")";
         $stmt = $BD->prepare($sql);
 
         $stmt->execute();
