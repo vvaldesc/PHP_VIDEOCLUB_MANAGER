@@ -1,1 +1,50 @@
-SELECT peliculas.id AS id_pelicula, peliculas.titulo, peliculas.genero, peliculas.pais, peliculas.anyo, peliculas.cartel, actores.nombre AS nombre_actor, actores.apellidos AS apellidos_actor FROM peliculas LEFT JOIN actores ON peliculas.id = actores.id UNION SELECT peliculas.id AS id_pelicula, peliculas.titulo, peliculas.genero, peliculas.pais, peliculas.anyo, peliculas.cartel, NULL AS nombre_actor, NULL AS apellidos_actor FROM peliculas WHERE NOT EXISTS ( SELECT 1 FROM actores WHERE actores.id = peliculas.id ) UNION SELECT NULL AS id_pelicula, NULL AS titulo, NULL AS genero, NULL AS pais, NULL AS anyo, NULL AS cartel, actores.nombre AS nombre_actor, actores.apellidos AS apellidos_actor FROM actores WHERE NOT EXISTS ( SELECT 1 FROM peliculas WHERE actores.id = peliculas.id );
+SELECT 
+    peliculas.id AS id_pelicula,
+    peliculas.titulo AS titulo_pelicula,
+    peliculas.genero AS genero_pelicula,
+    peliculas.pais AS pais_peliculas,
+    peliculas.anyo AS anyo_pelicula,
+    peliculas.cartel AS cartel_pelicula,
+    actores.id AS id_actor,
+    actores.nombre AS nombre_actor,
+    actores.apellidos AS apellidos_actor
+FROM peliculas
+LEFT JOIN actores ON peliculas.id = actores.id
+
+UNION
+
+SELECT 
+    peliculas.id AS id_pelicula,
+    peliculas.titulo,
+    peliculas.genero,
+    peliculas.pais,
+    peliculas.anyo,
+    peliculas.cartel,
+    NULL AS id_actor,
+    NULL AS nombre_actor,
+    NULL AS apellidos_actor
+FROM peliculas
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM actores
+    WHERE actores.id = peliculas.id
+)
+
+UNION
+
+SELECT 
+    NULL AS id_pelicula,
+    NULL AS titulo,
+    NULL AS genero,
+    NULL AS pais,
+    NULL AS anyo,
+    NULL AS cartel,
+    actores.id AS id_actor,
+    actores.nombre AS nombre_actor,
+    actores.apellidos AS apellidos_actor
+FROM actores
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM peliculas
+    WHERE actores.id = peliculas.id
+);

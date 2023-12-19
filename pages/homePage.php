@@ -80,11 +80,11 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
                         $miUsuario->actualizarSesion($_SESSION);
                     }
                     
+                    $sql="SELECT * FROM ACTORES";
+                    $tablaPeliculasActores = extraerTablas($sql, true);
                     
-                    
-                    
-                    
-                    
+                    $sql="SELECT * FROM ACTUAN";
+                    $tablaActuan = extraerTablas($sql, true);
                     
                     $tabla=extraerTablas("SELECT * FROM PELICULAS");
                     if (!isset($arrPeliculas)) {
@@ -97,8 +97,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
                     }
                     unset($tabla);
 
-                    echo entornoFormulario(imprimirTablaPeliculas($arrPeliculas,$arrActores),$miUsuario,$maxIDPelicula);
-                    //echo modalAnadirPelicula();
+                    echo entornoFormulario(imprimirTablaPeliculas($arrPeliculas,$arrActores,$tablaActuan),$miUsuario,$maxIDPelicula);
                     
                 ?>
                 

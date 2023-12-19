@@ -15,7 +15,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
  */
 function comprobarLogin(&$tabla) {
     if (isset($_POST["pass"]) && isset($_POST["usr"])) {
-        if ($_POST["pass"] != '' && $_POST["usr"] != '') {
+        if (/* $_POST["pass"] != '' && */$_POST["usr"] != '') {
             try {
                 //Sentencia SQL
                 $sql = "SELECT * FROM usuarios WHERE USERNAME = '" . $_POST['usr'] . "';";
@@ -44,42 +44,62 @@ function crearInstanciaLogError($username) {
     new Log(null, $username, true);
 }
 
-function crearInstanciasPelicula($tabla,&$maxID) {
-    $maxID=0;
+function crearInstanciasPelicula($tabla, &$maxID) {
+    $maxID = 0;
     $arrPeliculas = array();
     foreach ($tabla as $pelicula) {
         $peliculaAux = new Pelicula(
-            $pelicula["id"],
-            $pelicula["titulo"],
-            $pelicula["genero"],
-            $pelicula["pais"],
-            $pelicula["anyo"],
-            $pelicula["cartel"]
+                $pelicula["id"],
+                $pelicula["titulo"],
+                $pelicula["genero"],
+                $pelicula["pais"],
+                $pelicula["anyo"],
+                $pelicula["cartel"]
         );
         array_push($arrPeliculas, $peliculaAux);
-        if ($maxID < intval($pelicula["id"])) $maxID=$pelicula["id"];
+        if ($maxID < intval($pelicula["id"]))
+            $maxID = $pelicula["id"];
     }
     return $arrPeliculas;
 }
 
-function crearInstanciasActores($tabla,&$maxID) {
-    $maxID=0;
+function filtroTablaRelacional($idPelicula, $tablaActuan) {
+    $arrIdActores = array();
+    foreach ($tablaActuan as $value) {
+        if ($value["idPelicula"] == (int) $idPelicula)
+            array_push($arrIdActores, $value["idActor"]);
+    }
+    return $arrIdActores; //el id de actores que actuan en la pelicula
+}
+
+function filtraTablaId($tablaInstanciasObjeto, $arrId) {
+    $arrInstanciasId = array();
+    foreach ($tablaInstanciasObjeto as $instancia) {
+        if (in_array($instancia->id, $arrId))
+            array_push($arrInstanciasId, $instancia);
+    }
+    return $arrInstanciasId;
+}
+
+function crearInstanciasActores($tabla, &$maxID) {
+    $maxID = 0;
     $arrActores = array();
     foreach ($tabla as $actor) {
         $actorAux = new Actor(
-            $actor["id"],
-            $actor["nombre"],
-            $actor["apellidos"],
-            $actor["fotografia"]
+                $actor["id"],
+                $actor["nombre"],
+                $actor["apellidos"],
+                $actor["fotografia"]
         );
         array_push($arrActores, $actorAux);
-        if ($maxID < intval($actor["id"])) $maxID=$actor["id"];
+        if ($maxID < intval($actor["id"]))
+            $maxID = $actor["id"];
     }
     return $arrActores;
 }
 
-function imprimirTablaPeliculas($arrPeliculas,$arrTablaExtra = null) {
-    $html = '<table class="table">';
+function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null) {
+    $html = '<table class="table text-white">';
     $html .= '<thead><tr>';
     foreach (array_keys(get_object_vars($arrPeliculas[0])) as $columna) {
         $html .= '<th scope="col">' . $columna . '</th>';
@@ -90,24 +110,25 @@ function imprimirTablaPeliculas($arrPeliculas,$arrTablaExtra = null) {
 
     for ($i = 0; $i < count($arrPeliculas); $i++) {
         $html .= '<tr>';
-
         $arrAtributos = get_object_vars($arrPeliculas[$i]);
 
         foreach ($arrAtributos as $nombre => $valor) {
             $html .= '<td>';
             if ($nombre === 'cartel') {
                 $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/carteles/' . $valor . '" alt="Cartel">';
+            } else if ($nombre === 'id') {
+                $html .= $valor;
+                $id = $valor;
             } else {
                 $html .= $valor;
             }
             $html .= '</td>';
         }
         password_verify('1', $_SESSION['rol']) ? $html .= imprimirControlesTabla($arrAtributos["id"]) : null;
-        
         // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
-        
-        //if ($arrTablaExtra !== null) $html .= entornoTr(imprimirReparto($arrTablaExtra[$i]),count($arrPeliculas)+2);
-            
+        if ($arrTablaExtra !== null)
+            $html .= entornoTr(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion))), count($arrPeliculas) + 2);
+
         $html .= '</tr>';
     }
 
@@ -116,32 +137,33 @@ function imprimirTablaPeliculas($arrPeliculas,$arrTablaExtra = null) {
 }
 
 function imprimirReparto($arrActores) {
+    $html = '';
     for ($index = 0; $index < count($arrActores); $index++) {
-        $html = '<td>';
-        for ($j = 0; $j < count($arrActores[$index]); $j++){
-            $key = array_keys($arrActores)[$j];
+        $html .= '<td>';
+        $arrActor = get_object_vars($arrActores[$index]);
+        for ($j = 0; $j < count($arrActor); $j++) {
+            $key = array_keys($arrActor)[$j];
             switch ($key) {
                 case "nombre":
-                     $html .= '<p>'.$arrActores["nombre"].'</p>';
+                    $html .= '<p>' . $arrActor["nombre"] . '</p>';
                     break;
                 case "fotografia":
-                     $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/actores/' . $arrActores["fotografia"] . '" alt="Actor">';
+                    $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/actores/' . $arrActor["fotografia"] . '" alt="Actor">';
                     break;
                 case "apellidos":
-                     $html .= '<p>'.$arrActores["apellidos"].'</p>';
+                    $html .= '<p>' . $arrActor["apellidos"] . '</p>';
                     break;
-
                 default:
                     break;
             }
         }
-        $html .= '<td>';
+    $html.='<button type="button" class="btn btn-danger" name="eliminarActorId_' . $arrActor["id"] . '">Eliminar</button>';
     }
     return $html;
 }
 
-function entornoTr($innerHTML,$colspan){
-    return '<tr>'.$innerHTML.'</tr>';
+function entornoTr($innerHTML, $colspan) {
+    return '<tr>' . $innerHTML . '</tr>';
 }
 
 function imprimirControlesTabla($id) {
@@ -152,7 +174,7 @@ function imprimirControlesTabla($id) {
     $html .= '<button type="button" class="btn btn-secondary" name="modificarPeliculaId_' . $id . '">Modificar</button>';
     $html .= '</td>';
     $html .= '<td>';
-    $html .= '<input type="radio" name="selectorPeliculaId_' . $id . '" autocomplete="off">';
+    $html .= '<input type="radio" name="selectorPeliculaId_' . $id . '">';
     $html .= '</td>';
     return $html;
 }
@@ -161,7 +183,6 @@ function imprimirIndicesControlesTabla($max) {
     $html = '<th scope="col">' . $max . '</th>';
     $html .= '<th scope="col">' . $max + 1 . '</th>';
     $html .= '<th scope="col">' . $max + 2 . '</th>';
-
     return $html;
 }
 
@@ -331,7 +352,6 @@ function eliminarPeliculas($funcionalidadID) {
     } else {
         $valores = $funcionalidadID["id"];
     }
-
     // Eliminar datos utilizando el valor o la combinación de valores
     eliminarDatos("peliculas", "id", $valores);
 }
