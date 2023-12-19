@@ -104,7 +104,6 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
     foreach (array_keys(get_object_vars($arrPeliculas[0])) as $columna) {
         $html .= '<th scope="col">' . $columna . '</th>';
     }
-
     password_verify('1', $_SESSION['rol']) ? $html .= imprimirIndicesControlesTabla(count($arrPeliculas)) : null;
     $html .= '</tr></thead><tbody>';
 
@@ -120,11 +119,11 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
                 $html .= $valor;
                 $id = $valor;
             } else {
-                $html .= $valor;
+                $html .= '<p class="text-white">'.$valor.'</p>';
             }
             $html .= '</td>';
         }
-        password_verify('1', $_SESSION['rol']) ? $html .= imprimirControlesTabla($arrAtributos["id"]) : null;
+        password_verify('1', $_SESSION['rol']) ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
         // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
         if ($arrTablaExtra !== null)
             $html .= entornoTr(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion))), count($arrPeliculas) + 2);
@@ -145,19 +144,19 @@ function imprimirReparto($arrActores) {
             $key = array_keys($arrActor)[$j];
             switch ($key) {
                 case "nombre":
-                    $html .= '<p>' . $arrActor["nombre"] . '</p>';
+                    $html .= '<p class="text-white">' . $arrActor["nombre"] . '</p>';
                     break;
                 case "fotografia":
                     $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/actores/' . $arrActor["fotografia"] . '" alt="Actor">';
                     break;
                 case "apellidos":
-                    $html .= '<p>' . $arrActor["apellidos"] . '</p>';
+                    $html .= '<p class="text-white">' . $arrActor["apellidos"] . '</p>';
                     break;
                 default:
                     break;
             }
         }
-    $html.='<button type="button" class="btn btn-danger" name="eliminarActorId_' . $arrActor["id"] . '">Eliminar</button>';
+        $html .= imprimirControlesTabla($arrActor["id"], true,"eliminarActorId_");
     }
     return $html;
 }
@@ -166,16 +165,21 @@ function entornoTr($innerHTML, $colspan) {
     return '<tr>' . $innerHTML . '</tr>';
 }
 
-function imprimirControlesTabla($id) {
-    $html = '<td>';
-    $html .= '<button type="submit" class="btn btn-danger" name="eliminarPeliculaId_' . $id . '">Eliminar</button>';
-    $html .= '</td>';
-    $html .= '<td>';
-    $html .= '<button type="button" class="btn btn-secondary" name="modificarPeliculaId_' . $id . '">Modificar</button>';
-    $html .= '</td>';
-    $html .= '<td>';
-    $html .= '<input type="radio" name="selectorPeliculaId_' . $id . '">';
-    $html .= '</td>';
+function imprimirControlesTabla($id, $soloBorrar = false, $nombreBorrar = null) {
+    $html = '';
+    if (!$soloBorrar)
+        $html = '<td>';
+    //nombre operador ternario hacer name="eliminarPeliculaId_' 
+    $html .= '<button type="submit" class="btn btn-danger" name='. ($nombreBorrar===null ? 'eliminarPeliculaId_' : $nombreBorrar) .''.$id.'>Eliminar</button>';
+    if (!$soloBorrar) {
+        $html .= '</td>';
+        $html .= '<td>';
+        $html .= '<button type="button" class="btn btn-secondary" name="modificarPeliculaId_' . $id . '">Modificar</button>';
+        $html .= '</td>';
+        $html .= '<td>';
+        $html .= '<input type="radio" name="selectorPeliculaId_' . $id . '">';
+        $html .= '</td>';
+    }
     return $html;
 }
 
@@ -247,23 +251,23 @@ function inputsAnadirPelicula() {
     return $formulario = '
         <div class="form-group">
             <label for="nombre">Título</label>
-            <input name="nuevaPelicula_Titulo" type="text" class="form-control" id="titulo" placeholder="Título" required>
+            <input name="nuevaPelicula_Titulo" type="text" class="form-control" id="titulo" placeholder="Título">
         </div>
         <div class="form-group">
             <label for="apellidos">Género</label>
-            <input name="nuevaPelicula_Genero" type="text" class="form-control" id="genero" placeholder="Genero" required>
+            <input name="nuevaPelicula_Genero" type="text" class="form-control" id="genero" placeholder="Genero">
         </div>
         <div class="form-group">
             <label for="domicilio">Pais</label>
-            <input name="nuevaPelicula_Pais" type="text" class="form-control" id="pais" placeholder="Pais" required>
+            <input name="nuevaPelicula_Pais" type="text" class="form-control" id="pais" placeholder="Pais">
         </div>
         <div class="form-group">
             <label for="domicilio">Año</label>
-            <input name="nuevaPelicula_Anyo" type="number" class="form-control" id="anyo" placeholder="Año" required>
+            <input name="nuevaPelicula_Anyo" type="number" class="form-control" id="anyo" placeholder="Año">
         </div>
         <div class="form-group">
             <label for="domicilio">Cartel</label>
-            <input name="nuevaPelicula_Cartel" type="text" class="form-control" id="cartel" placeholder="Cartel" required>
+            <input name="nuevaPelicula_Cartel" type="text" class="form-control" id="cartel" placeholder="Cartel">
         </div>
     ';
 }
@@ -308,6 +312,10 @@ function funcionalidadPeliculas(&$funcionalidadID) {
             // Return the "anadirPelicula" functionality.
             $funcionalidadID = array("funcion" => "anadirPelicula");
             return "anadirPelicula";
+        } else if (strpos($key, "eliminarActor") === 0) {
+            $id = obtenerID($key);
+            $funcionalidadID = array("funcion" => "eliminarActor", "id" => $id);
+            return "eliminarActor";
         } else if (strpos($key, "modificarPeliculaId") === 0) {
             // Return the "modificarPelicula" functionality.
             $id = obtenerID($key);

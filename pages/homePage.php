@@ -71,7 +71,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
         <div class="container mx-auto mt-5">
 
             <!-- Contenedor principal (main) -->
-            <main class="container m-auto text-center">                 
+            <main style="width: 1000px" class="container m-auto text-center">                 
 
                 <?php 
                     //$miUsuario=unserialize(base64_decode($_POST["miUsuario"]));
@@ -79,13 +79,10 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
                         $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
                         $miUsuario->actualizarSesion($_SESSION);
                     }
-                    
-                    $sql="SELECT * FROM ACTORES";
-                    $tablaPeliculasActores = extraerTablas($sql, true);
-                    
-                    $sql="SELECT * FROM ACTUAN";
-                    $tablaActuan = extraerTablas($sql, true);
-                    
+                    $sqlActores="SELECT * FROM ACTORES";
+                    $tablaPeliculasActores = extraerTablas($sqlActores, true);  unset($sqlActores);
+                    $sqlActuan="SELECT * FROM ACTUAN";
+                    $tablaActuan = extraerTablas($sqlActuan, true);  unset($sqlActuan);
                     $tabla=extraerTablas("SELECT * FROM PELICULAS");
                     if (!isset($arrPeliculas)) {
                         $arrPeliculas = crearInstanciasPelicula($tabla,$maxIDPelicula);
@@ -96,9 +93,7 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
                         $arrActores = crearInstanciasActores($arrActores,$maxIDActor);
                     }
                     unset($tabla);
-
                     echo entornoFormulario(imprimirTablaPeliculas($arrPeliculas,$arrActores,$tablaActuan),$miUsuario,$maxIDPelicula);
-                    
                 ?>
                 
             </main>
