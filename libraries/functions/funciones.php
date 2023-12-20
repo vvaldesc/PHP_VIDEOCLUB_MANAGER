@@ -113,8 +113,50 @@ function crearInstanciasActores($tabla, &$maxID) {
     return $arrActores;
 }
 
-function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null) {
+function imprimirAtributosMostrar($nombre, $valor, &$id) {
+    $htmlTd = '';
+    if ($nombre === 'cartel') {
+        $htmlTd .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/carteles/' . $valor . '" alt="Cartel">';
+    } else if ($nombre === 'id') {
+        $htmlTd .= $valor;
+        $id = $valor;
+    } else {
+        $htmlTd .= '<p class="text-white">' . $valor . '</p>';
+    }
+    return $htmlTd;
+}
 
+function entornoInputsModificarPelicula($innerHTML, &$imprimido, $idPelicula) {
+    if (!$imprimido) {
+        $innerHTML .= '<input type="hidden" name="modificarBD" value="true">';
+        $innerHTML .= '<input type="hidden" name="IDpeliculaModificar" value="'.$idPelicula.'">';
+        $imprimido = true;
+    }
+    return $innerHTML;
+}
+
+
+function imprimirAtributosInput($nombre, $valor, &$id) {
+    $htmlTd = '';
+    //$htmlTd .= '<input type="hidden" name="modificarBD" value="'.true.'">';
+    switch ($nombre) {
+        case "id":
+            $htmlTd .= $valor;
+            $id = $valor;
+            break;
+        case "titulo": case "genero": case"pais": case"anyo":
+            $htmlTd .= '<input type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($nombre) . '">';
+            break;
+        case "cartel":
+            $htmlTd .= '<input type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($nombre) . '">';
+            break;
+        default:
+            break;
+    }
+    return $htmlTd;
+}
+
+function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null) {
     if ($arrTablaRelacion !== null)
         $arrActoresParo = array();
     $html = '<table class="table text-white">';
@@ -130,16 +172,9 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
         $arrAtributos = get_object_vars($arrPeliculas[$i]);
 
         foreach ($arrAtributos as $nombre => $valor) {
-            $html .= '<td>';
-            if ($nombre === 'cartel') {
-                $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/carteles/' . $valor . '" alt="Cartel">';
-            } else if ($nombre === 'id') {
-                $html .= $valor;
-                $id = $valor;
-            } else {
-                $html .= '<p class="text-white">' . $valor . '</p>';
-            }
-            $html .= '</td>';
+            isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"] 
+                    ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido,$arrAtributos["id"])) 
+                    : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
         }
         password_verify('1', $_SESSION['rol']) && $tablaNoFuncional === null ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
         $html .= '</tr>';
@@ -159,7 +194,7 @@ function anadirListaParo($innerHtml = null, $arrActoresParoID, $arrActores) {
         if ($innerHtml === null)
             $innerHtml = '';
         if (count($arrActoresParoID) > 0) {
-            $innerHtml.='<h1>Actores en paro</h1>';
+            $innerHtml .= '<h1>Actores en paro</h1>';
             $arrActoresParo = filtraTablaId($arrActores, $arrActoresParoID, true);
             return $innerHtml .= imprimirTablaPeliculas($arrActoresParo, null, null, $arrActoresParoID, true);
         }
@@ -170,7 +205,7 @@ function entornoCajaFlex($innerHtml) {
     return '<div class="d-flex justify-content-center align-center text-center">' . $innerHtml . '</div>';
 }
 
-function entornoTd($innerTd, $colspan) {
+function entornoTd($innerTd, $colspan = 1) {
     return '<td colspan=' . $colspan . '>' . $innerTd . '</td>';
 }
 
@@ -218,7 +253,7 @@ function imprimirControlesTabla($id, $soloBorrar = false, $nombreBorrar = null) 
     if (!$soloBorrar) {
         $html .= '</td>';
         $html .= '<td>';
-        $html .= '<button type="button" class="btn btn-secondary" name="modificarPeliculaId_' . $id . '">Modificar</button>';
+        $html .= '<button type="submit" class="btn btn-secondary" name="modificarPeliculaId_' . $id . '">Modificar</button>';
         $html .= '</td>';
         $html .= '<td>';
         $html .= '<input type="radio" name="selectorPeliculaId_' . $id . '">';
@@ -250,7 +285,7 @@ function gestionarFuncionalidad() {
             anadirPelicula($_POST["maxIDPeliculas"]);
             break;
         case "modificarPelicula":
-            modificarPelicula();
+            modificarPelicula($funcionalidadID["id"]);
             break;
         case "eliminarPelicula":
             eliminarPeliculas($funcionalidadID);
@@ -268,7 +303,7 @@ function gestionarFuncionalidad() {
  * @return type
  */
 function entornoFormulario($innerForm, $miUsuario, $maxIDPeliculas) {
-    return '<form method="POST" action=' . $_SERVER["PHP_SELF"] . '>'
+    return '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">'
             . $innerForm
             . (isset($_SESSION["rol"]) && password_verify('1', $_SESSION['rol']) ? modalAnadirPelicula() : '')
             . '<input type="hidden" name="miUsuario" value="' . (!empty($miUsuario) ? base64_encode(serialize($miUsuario)) : '') . '">'
@@ -410,12 +445,21 @@ function anadirPelicula($maxIDPeliculas) {
     insertar("peliculas", array("id" => $maxIDPeliculas + 1, "titulo" => $_POST["nuevaPelicula_Titulo"], "genero" => $_POST["nuevaPelicula_Genero"], "pais" => $_POST["nuevaPelicula_Pais"], "anyo" => $_POST["nuevaPelicula_Anyo"], "cartel" => $_POST["nuevaPelicula_Cartel"]));
 }
 
-function modificarPelicula($id, $nuevoTitulo, $nuevoGenero, $nuevoPais, $nuevoAnyo, $nuevoCartel) {
-    // Sentencia SQL para actualizar una película
-    //$sql = "UPDATE peliculas SET titulo = '$nuevoTitulo', genero = '$nuevoGenero', pais = '$nuevoPais', anyo = $nuevoAnyo, cartel = '$nuevoCartel' WHERE id = $id;";
-    //modificarTabla($tabla, $dato);
-    // Ejecutar la sentencia SQL
-    ejecutarConsulta($sql);
+function modificarPelicula($id) {
+    if (isset($_POST["modificarBD"]) && $_POST["modificarBD"] == true) {
+        modificarTabla(
+                "peliculas",
+                array(
+                    "Titulo" => $_POST["modificarInput_Titulo"],
+                    "Genero" => $_POST["modificarInput_Genero"],
+                    "Pais" => $_POST["modificarInput_Pais"],
+                    "Anyo" => $_POST["modificarInput_Anyo"],
+                    "Cartel" => $_POST["modificarInput_Cartel"]
+                )
+        ,$_POST["IDpeliculaModificar"]);
+    } else {
+        $_POST["mostrarInputsPelicula_ID"] = $id;
+    }
 }
 
 function eliminarPeliculas($funcionalidadID) {

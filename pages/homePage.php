@@ -13,9 +13,12 @@
         unset($password,$tabla);
         if (isset($_POST["miUsuario"])) unset ($_POST["miUsuario"]);
         if (isset($_POST["password"])) unset ($_POST["password"]);
+        if (isset($_POST["usr"])) unset ($_POST["usr"]);
     } else{
         crearInstanciaLogError($_POST["usr"]);
         $url = '../index.php?formError=true&usr=' . urlencode($_POST["usr"]);
+        $_SESSION=[];
+        session_destroy();
         header('Location: ../index.php?formError=true&usr='.$_POST["usr"].'');
         exit();
     }
