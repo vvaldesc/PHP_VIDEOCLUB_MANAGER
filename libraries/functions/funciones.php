@@ -20,7 +20,7 @@ function comprobarLogin(&$tabla) {
                 //Sentencia SQL
                 $sql = "SELECT * FROM usuarios WHERE USERNAME = '" . $_POST['usr'] . "';";
                 // AL SER USUARIO CLAVE UNICA LA PRIMERA CONDICIÓN ES PRÁCTICAMENTE INNECESARIA
-                $tabla = extraerTablas($sql,true);
+                $tabla = extraerTablas($sql, true);
                 if (count($tabla) == 1 && $_POST['password'] == $tabla[0]["password"]) {
                     return true;
                 } else {
@@ -63,7 +63,7 @@ function crearInstanciasPelicula($tabla, &$maxID) {
     return $arrPeliculas;
 }
 
-function filtroTablaRelacional($idPelicula, $tablaActuan) {
+function filtroTablaRelacional($idPelicula, $tablaActuan, &$arrIdActores) {
     $arrIdActores = array();
     foreach ($tablaActuan as $value) {
         if ($value["idPelicula"] == (int) $idPelicula)
@@ -72,11 +72,26 @@ function filtroTablaRelacional($idPelicula, $tablaActuan) {
     return $arrIdActores; //el id de actores que actuan en la pelicula
 }
 
-function filtraTablaId($tablaInstanciasObjeto, $arrId) {
+/**
+ * DESC: It filters $tablaInstanciasObjeto by id gien in $arrId, does the oposite if $negativo is true
+ * 
+ * @param array/object $tablaInstanciasObjeto
+ * @param array $arrId
+ * @param boolean $negativo
+ * @return array
+ */
+function filtraTablaId($tablaInstanciasObjeto, $arrId, $negativo = false) {
     $arrInstanciasId = array();
     foreach ($tablaInstanciasObjeto as $instancia) {
-        if (in_array($instancia->id, $arrId))
+        if (is_array($instancia)) {
+            $condicion = in_array($instancia["id"], $arrId, false);
+        } else {
+            $condicion = in_array($instancia->id, $arrId, false);
+        }
+
+        if (($negativo && !$condicion) || (!$negativo && $condicion)) {
             array_push($arrInstanciasId, $instancia);
+        }
     }
     return $arrInstanciasId;
 }
@@ -98,13 +113,16 @@ function crearInstanciasActores($tabla, &$maxID) {
     return $arrActores;
 }
 
-function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null) {
+function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null) {
+
+    if ($arrTablaRelacion !== null)
+        $arrActoresParo = array();
     $html = '<table class="table text-white">';
     $html .= '<thead><tr>';
     foreach (array_keys(get_object_vars($arrPeliculas[0])) as $columna) {
         $html .= '<th scope="col">' . $columna . '</th>';
     }
-    password_verify('1', $_SESSION['rol']) ? $html .= imprimirIndicesControlesTabla(count($arrPeliculas)) : null;
+    password_verify('1', $_SESSION['rol']) && $tablaNoFuncional === null ? $html .= imprimirIndicesControlesTabla(count($arrPeliculas)) : null;
     $html .= '</tr></thead><tbody>';
 
     for ($i = 0; $i < count($arrPeliculas); $i++) {
@@ -119,37 +137,51 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
                 $html .= $valor;
                 $id = $valor;
             } else {
-                $html .= '<p class="text-white">'.$valor.'</p>';
+                $html .= '<p class="text-white">' . $valor . '</p>';
             }
             $html .= '</td>';
         }
-        password_verify('1', $_SESSION['rol']) ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
+        password_verify('1', $_SESSION['rol']) && $tablaNoFuncional === null ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
         $html .= '</tr>';
-                // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
-                if ($arrTablaExtra !== null)
-            $html .= entornoTr(entornoTd(entornoCajaFlex(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion)))),count($arrPeliculas)+3));
+        // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
+        if ($arrTablaExtra !== null) {
+            $html .= entornoTr(entornoTd(entornoCajaFlex(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion, $arrIdActores)))), count($arrPeliculas) + 3));
+            $arrActoresParo = array_unique(array_merge($arrActoresParo, $arrIdActores));
+        }
     }
 
     $html .= '</tbody></table>';
     return $html;
 }
 
-function entornoCajaFlex($innerHtml) {
-    return '<div class="d-flex justify-content-center align-center text-center">'.$innerHtml.'</div>';
+function anadirListaParo($innerHtml = null, $arrActoresParoID, $arrActores) {
+    if (password_verify('1', $_SESSION['rol'])) {
+        if ($innerHtml === null)
+            $innerHtml = '';
+        if (count($arrActoresParoID) > 0) {
+            $innerHtml.='<h1>Actores en paro</h1>';
+            $arrActoresParo = filtraTablaId($arrActores, $arrActoresParoID, true);
+            return $innerHtml .= imprimirTablaPeliculas($arrActoresParo, null, null, $arrActoresParoID, true);
+        }
+    }
 }
 
-function entornoTd($innerTd,$colspan) {
-    return '<td colspan='.$colspan.'>'.$innerTd.'</td>';
+function entornoCajaFlex($innerHtml) {
+    return '<div class="d-flex justify-content-center align-center text-center">' . $innerHtml . '</div>';
+}
+
+function entornoTd($innerTd, $colspan) {
+    return '<td colspan=' . $colspan . '>' . $innerTd . '</td>';
 }
 
 function entornoTable($innerTable) {
-    return '<table class="table text-white">'.$innerTable.'</table>';
+    return '<table class="table text-white">' . $innerTable . '</table>';
 }
 
 function imprimirReparto($arrActores) {
     $html = '';
     for ($index = 0; $index < count($arrActores); $index++) {
-        $html .= '<article class="card bg-dark text-white d-flex flex-column align-center">';
+        $html .= '<article class="p-3 m-3 card bg-secondary  text-white d-flex flex-column align-center">';
         $arrActor = get_object_vars($arrActores[$index]);
         for ($j = 0; $j < count($arrActor); $j++) {
             $key = array_keys($arrActor)[$j];
@@ -158,7 +190,7 @@ function imprimirReparto($arrActores) {
                     $html .= '<p class="text-white">' . $arrActor["nombre"] . '</p>';
                     break;
                 case "fotografia":
-                    $html .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/actores/' . $arrActor["fotografia"] . '" alt="Actor">';
+                    $html .= '<img class="img-thumbnail img-fluid" style="width: 120px; height: 170px" src="../assets/img/actores/' . $arrActor["fotografia"] . '" alt="Actor">';
                     break;
                 case "apellidos":
                     $html .= '<p class="text-white">' . $arrActor["apellidos"] . '</p>';
@@ -168,7 +200,7 @@ function imprimirReparto($arrActores) {
             }
         }
         //$html .= imprimirControlesTabla($arrActor["id"], true,"eliminarActorId_");
-        $html.='</article>';
+        $html .= '</article>';
     }
     return $html;
 }
@@ -182,7 +214,7 @@ function imprimirControlesTabla($id, $soloBorrar = false, $nombreBorrar = null) 
     if (!$soloBorrar)
         $html = '<td>';
     //nombre operador ternario hacer name="eliminarPeliculaId_' 
-    $html .= '<button type="submit" class="btn btn-danger" name='. ($nombreBorrar===null ? 'eliminarPeliculaId_' : $nombreBorrar) .''.$id.'>Eliminar</button>';
+    $html .= '<button type="submit" class="btn btn-danger" name=' . ($nombreBorrar === null ? 'eliminarPeliculaId_' : $nombreBorrar) . '' . $id . '>Eliminar</button>';
     if (!$soloBorrar) {
         $html .= '</td>';
         $html .= '<td>';
@@ -306,10 +338,8 @@ function imprimirInputsHiddenForm($datosEnviar) {
 }
 
 function eliminarActor($funcionalidadID) {
-    
+
     //Se trata de eliminar la relación del actor con la película
-    
-    
 }
 
 /**

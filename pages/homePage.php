@@ -63,13 +63,9 @@
             <main style="width: 1000px" class="container m-auto text-center">                 
 
                 <?php 
-                    //$miUsuario=unserialize(base64_decode($_POST["miUsuario"]));
-                    /*if($_SERVER["REQUEST_METHOD"]=="GET") {
-                        $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
-                        $miUsuario->actualizarSesion($_SESSION);
-                    }*/
-                    $sqlActores="SELECT * FROM ACTORES";
-                    $tablaPeliculasActores = extraerTablas($sqlActores, true);  unset($sqlActores);
+
+                    //$sqlActores="SELECT * FROM ACTORES";
+                    //$tablaPeliculasActores = extraerTablas($sqlActores, true);  unset($sqlActores);
                     $sqlActuan="SELECT * FROM ACTUAN";
                     $tablaActuan = extraerTablas($sqlActuan, true);  unset($sqlActuan);
                     $tabla=extraerTablas("SELECT * FROM PELICULAS");
@@ -83,7 +79,8 @@
                         $arrActores = crearInstanciasActores($arrActores,$maxIDActor);
                     }
                     unset($tabla);
-                    echo entornoFormulario(imprimirTablaPeliculas($arrPeliculas,$arrActores,$tablaActuan),$miUsuario,$maxIDPelicula);
+                    echo entornoFormulario(anadirListaParo(imprimirTablaPeliculas($arrPeliculas,$arrActores,$tablaActuan,$arrActoresParo),$arrActoresParo,$arrActores),$miUsuario,$maxIDPelicula);
+                    
                     
                     
                     
