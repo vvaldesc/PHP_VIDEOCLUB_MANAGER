@@ -3,10 +3,10 @@
 class Actor {
 
     // Atributos de la clase Actor
-    public $id;
-    public $nombre;
-    public $apellidos;
-    public $fotografia;
+    private $id;
+    private $nombre;
+    private $apellidos;
+    private $fotografia;
 
     // Método constructor para inicializar el actor con sus atributos
     public function __construct($id, $nombre, $apellidos, $fotografia) {
@@ -15,11 +15,51 @@ class Actor {
         $this->apellidos = $apellidos;
         $this->fotografia = $fotografia;
     }
+    
+    public function toArray(){
+        return get_object_vars($this);
+    }
 
 
     // Otros métodos de la clase Actor (si es necesario)
     public function obtenerNombreCompleto() {
         return $this->nombre . ' ' . $this->apellidos;
+    }
+    
+        // Getter y Setter para 'id'
+    public function getId() {
+        return $this->id;
+    }
+
+    public function setId($id) {
+        $this->id = $id;
+    }
+
+    // Getter y Setter para 'nombre'
+    public function getNombre() {
+        return $this->nombre;
+    }
+
+    public function setNombre($nombre) {
+        $this->nombre = $nombre;
+    }
+
+    // Getter y Setter para 'apellidos'
+    public function getApellidos() {
+        return $this->apellidos;
+    }
+
+    public function setApellidos($apellidos) {
+        $this->apellidos = $apellidos;
+    }
+
+    // Getter y Setter para 'fotografia'
+    public function getFotografia() {
+        return $this->fotografia;
+    }
+
+    public function setFotografia($fotografia) {
+        $this->fotografia = $fotografia;
     }
 
     public function __toString() {

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 30-11-2023 a las 11:51:22
+-- Tiempo de generación: 15-12-2023 a las 15:38:35
 -- Versión del servidor: 10.4.27-MariaDB
 -- Versión de PHP: 8.2.0
 
@@ -43,7 +43,17 @@ INSERT INTO `actores` (`id`, `nombre`, `apellidos`, `fotografia`) VALUES
 (2, 'Kate', 'Winslet', 'kate_winslet.jpg'),
 (3, 'John', 'Travolta', 'john_travolta.jpg'),
 (4, 'Ryan', 'Gosling', 'ryan_gosling.jpg'),
-(5, 'Marlon', 'Brando', 'marlon_brando.jpg');
+(5, 'Marlon', 'Brando', 'marlon_brando.jpg'),
+(6, 'Scarlett', 'Johansson', 'scarlett_johansson.jpg'),
+(7, 'Brad', 'Pitt', 'brad_pitt.jpg'),
+(8, 'Jennifer', 'Lawrence', 'jennifer_lawrence.jpg'),
+(9, 'Leonardo', 'DiCaprio', 'leonardo_dicaprio.jpg'),
+(10, 'Emma', 'Stone', 'emma_stone.jpg'),
+(11, 'Tom', 'Hanks', 'tom_hanks.jpg'),
+(12, 'Meryl', 'Streep', 'meryl_streep.jpg'),
+(13, 'Denzel', 'Washington', 'denzel_washington.jpg'),
+(14, 'Natalie', 'Portman', 'natalie_portman.jpg'),
+(15, 'Will', 'Smith', 'will_smith.jpg');
 
 -- --------------------------------------------------------
 
@@ -62,10 +72,23 @@ CREATE TABLE `actuan` (
 
 INSERT INTO `actuan` (`idPelicula`, `idActor`) VALUES
 (1, 1),
+(1, 6),
+(1, 7),
+(1, 8),
 (2, 2),
+(2, 6),
+(2, 7),
+(2, 9),
+(2, 10),
 (3, 3),
+(3, 8),
+(3, 10),
 (4, 4),
-(5, 5);
+(4, 9),
+(5, 5),
+(5, 7),
+(5, 8),
+(5, 10);
 
 -- --------------------------------------------------------
 
@@ -107,6 +130,18 @@ CREATE TABLE `usuarios` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Volcado de datos para la tabla `usuarios`
+--
+
+-- CONTRASEÑAS CIFRADAS EN SHA256
+
+INSERT INTO `usuarios` (`id`, `username`, `password`, `rol`) VALUES
+(1, 'admin', 'dea75af85f93d7819eab44a0065ce6cd5a5f0c4109bac0b9ff95d8da3cbac1b0', 1), -- CONTRASEÑA --> "password_admin"
+(2, 'estornudoman', '005c6755f85f44c95811fafec499daa4493e0d5bb040877dab574de532ad7908', 0), -- CONTRASEÑA --> "password_estornudo"
+(3, 'delegado', '15135897ab9c55c085740ccaf6617733c41c38084a424dd73decd7c21f505c0c', 1), -- CONTRASEÑA --> "password_delegado"
+(4, 'subdelegado', '8faac3aea2b17360f46eaf8c2cbc910a36a2a5d1b283835f0521abb6c2352f47', 0); -- CONTRASEÑA --> "password_subdelegado"
+
+--
 -- Índices para tablas volcadas
 --
 
@@ -144,7 +179,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `actores`
 --
 ALTER TABLE `actores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `peliculas`
@@ -156,7 +191,7 @@ ALTER TABLE `peliculas`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Restricciones para tablas volcadas

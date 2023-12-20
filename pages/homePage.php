@@ -6,7 +6,7 @@
         $miUsuario->actualizarPost($_POST);
         $miUsuario->actualizarSesion($_SESSION,false);
     }   else{
-        $_POST["password"]=hash('sha512', $_POST['password']);
+        $_POST["password"]=hash('sha256', $_POST['password']);
     }
     if ($_SERVER["REQUEST_METHOD"]==="POST" && comprobarLogin($tabla)) {
         isset($_POST["miUsuario"]) ? gestionarFuncionalidad() : crearInstanciaUsuario($miUsuario, $tabla, $_SESSION);
@@ -63,16 +63,14 @@
         <div class="container mx-auto mt-5">
 
             <!-- Contenedor principal (main) -->
-            <main style="width: 1000px" class="container m-auto text-center">                 
+            <main style="max-width: 1000px" class="container m-auto text-center">                 
 
                 <?php 
-
                     //$sqlActores="SELECT * FROM ACTORES";
                     //$tablaPeliculasActores = extraerTablas($sqlActores, true);  unset($sqlActores);
                     $sqlActuan="SELECT * FROM ACTUAN";
                     $tablaActuan = extraerTablas($sqlActuan, true);  unset($sqlActuan);
                     $tabla=extraerTablas("SELECT * FROM PELICULAS");
-                    
                     if (!isset($arrPeliculas)) {
                         $arrPeliculas = crearInstanciasPelicula($tabla,$maxIDPelicula);
                     }
@@ -82,17 +80,15 @@
                         $arrActores = crearInstanciasActores($arrActores,$maxIDActor);
                     }
                     unset($tabla);
-                    
                     $esRolAdmin = isset($_SESSION["rol"]) && password_verify('1', $_SESSION['rol']);
-                    
                     echo $esRolAdmin
                         ? entornoFormularioPrincipal(anadirListaParo(imprimirTablaPeliculas($arrPeliculas, $arrActores, $tablaActuan, $arrActoresParo), $arrActoresParo, $arrActores), $miUsuario, $maxIDPelicula)
-                        : imprimirTablaPeliculas($arrPeliculas, $arrActores, $tablaActuan, $arrActoresParo);
-
-                        
-                    
-                    
-                    
+                        : imprimirTablaPeliculas($arrPeliculas, $arrActores, $tablaActuan, $arrActoresParo, true);
+                    if (!$esRolAdmin) {
+                        $tabla=extraerTablas("SELECT * FROM USUARIOS WHERE ROL = 1",true);
+                        $arrAdmins=crearInstanciasAdminsAux($tabla);
+                        echo entornoFormulario(inputsFormularioMailAdmin($arrAdmins));
+                    }
                 ?>
                 
             </main>

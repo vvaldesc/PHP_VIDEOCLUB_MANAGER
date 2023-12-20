@@ -12,15 +12,27 @@ class Usuario {
     private $log;
 
     // Método constructor para inicializar el usuario con sus atributos
-    public function __construct($id, $username, $password, $rol, &$sesion_aux) {
+    /**
+     * 
+     * @param string $id
+     * @param string $username
+     * @param string $password
+     * @param string $rol
+     * @param string $sesion_aux
+     * @param boolean $registrarLog
+     */
+    public function __construct($id, $username=null, $password=null, $rol=null, &$sesion_aux, $registrarInstancia = true) {
         $this->id = $id;
         $this->username = $username;
         $this->password = $password;
         $this->rol = $rol;
-        $this->log = new Log($id, $username, $error = false);
-        $this->actualizarSesion($sesion_aux,true);
+        if ($registrarInstancia) $this->log = new Log($id, $username, $error = false) && $this->actualizarSesion($sesion_aux,true);
         //$this->actualizarPost($_POST);
         //$this_>iniciarCookieSesion();
+    }
+    
+    public function toArray(){
+        return get_object_vars($this);
     }
     
     public function passwordHasher() {
@@ -58,8 +70,8 @@ class Usuario {
     
     public function __destruct() {
         //setcookie("nombreSesion", -0);
-        session_destroy();
-        $_SESSION=[];
+        //session_destroy();
+        //$_SESSION=[];
     }
     
     

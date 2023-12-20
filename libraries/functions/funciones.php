@@ -6,6 +6,56 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/usuario.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/pelicula.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/actor.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/usuario.php';
+
+/**
+ * Incluye un nuevo archivo PHP para encapsular las dependencias de PHPMailer
+ * Creemos que esto ayuda a ordenar código y ahorrar espacio en memoria
+ */
+function enviarMail() {
+
+    //HAGO ESTO PARA QUE SE CARGUEN LAS DEPENDENCIAS DE PHP MAILER SOLO CUANDO HAYA QUE ENVIAR UN MAIL
+    //DE CASO CONTRARIO SE CARGARÍAN CADA VEZ QUE SE USA UNA FUNCIÓN
+    // Ruta al archivo PHP que deseas incluir
+    $rutaPHPMailer = $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/enviarMailDependencias.php';
+    // Verificar si el archivo existe antes de incluirlo
+    if (file_exists($rutaPHPMailer)) {
+        // Incluir el archivo
+        include $rutaPHPMailer;
+    } else {
+        // Manejar el caso en que el archivo no existe
+        echo 'El archivo no existe.';
+    }
+}
+
+function inputsFormularioMailAdmin($tablaAdmins) {
+    return imprimirTablaPeliculas($tablaAdmins, null, null, $arrActoresParo, true) .
+            '<div class="form-group">
+                <label for="exampleFormControlTextarea1">Example textarea</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+            </div>';
+}
+
+function entornoSelect($innerForm) {
+    return '<select class="form-control" id="exampleFormControlSelect1">' . $innerForm . '</form>';
+}
+
+function entornoOptions($tabla) {
+    $html = '';
+
+    foreach ($array as $value) {
+        if ($value["rol"] == 1)
+            $html .= $value["username"];
+    }
+
+
+
+    return '';
+}
+
+function entornoFormulario($innerForm) {
+    return '<form>' . $innerForm . '</form>';
+}
 
 /**
  * Comprueba si el usuario y contraseña son correctos para acceder a la aplicación.
@@ -86,7 +136,7 @@ function filtraTablaId($tablaInstanciasObjeto, $arrId, $negativo = false) {
         if (is_array($instancia)) {
             $condicion = in_array($instancia["id"], $arrId, false);
         } else {
-            $condicion = in_array($instancia->id, $arrId, false);
+            $condicion = in_array($instancia->getId(), $arrId, false);
         }
 
         if (($negativo && !$condicion) || (!$negativo && $condicion)) {
@@ -111,6 +161,23 @@ function crearInstanciasActores($tabla, &$maxID) {
             $maxID = $actor["id"];
     }
     return $arrActores;
+}
+
+function crearInstanciasAdminsAux($tabla) {
+    $arrAdmins = array();
+    $arrAux = array();
+    foreach ($tabla as $admin) {
+        $usuarioAux = new Usuario(
+                $admin["id"],
+                $admin["username"],
+                null,
+                null,
+                $arrAux,
+                false
+        );
+        array_push($arrAdmins, $usuarioAux);
+    }
+    return $arrAdmins;
 }
 
 function imprimirAtributosMostrar($nombre, $valor, &$id) {
@@ -156,25 +223,34 @@ function imprimirAtributosInput($nombre, $valor, &$id) {
 }
 
 function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null) {
-    if (empty($arrPeliculas)) return '';
+    if (empty($arrPeliculas))
+        return '';
     if ($arrTablaRelacion !== null)
         $arrActoresParo = array();
+    if (password_verify('1', $_SESSION['rol']) && $tablaNoFuncional === null) {
+        $esAdmin = true;
+    } else {
+        $esAdmin = false;
+    }
     $html = '<table class="table text-white">';
     $html .= '<thead><tr>';
-    foreach (array_keys(get_object_vars($arrPeliculas[0])) as $columna) {
-        $html .= '<th scope="col">' . $columna . '</th>';
+    if (is_object($arrPeliculas[0])) {
+        foreach (($arrPeliculas[0]->toArray()) as $columna => $valor) {
+            if ($valor !== null)
+                $html .= '<th scope="col">' . $columna . '</th>';
+        }
+    } else {
+        return '';
     }
-    password_verify('1', $_SESSION['rol']) && $tablaNoFuncional === null ? $html .= imprimirIndicesControlesTabla(count($arrPeliculas)) : null;
+    $esAdmin === true ? $html .= imprimirIndicesControlesTabla(count($arrPeliculas)) : null;
     $html .= '</tr></thead><tbody>';
-
     for ($i = 0; $i < count($arrPeliculas); $i++) {
         $html .= '<tr>';
-        $arrAtributos = get_object_vars($arrPeliculas[$i]);
-
+        $arrAtributos = $arrPeliculas[$i]->toArray();
         foreach ($arrAtributos as $nombre => $valor) {
             isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"] ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido, $arrAtributos["id"])) : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
         }
-        password_verify('1', $_SESSION['rol']) && $tablaNoFuncional === null ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
+        $esAdmin === true ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
         $html .= '</tr>';
         // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
         if ($arrTablaExtra !== null) {
@@ -193,7 +269,7 @@ function anadirListaParo($innerHtml = null, $arrActoresParoID, $arrActores) {
         $innerHtml .= '<h1>Actores en paro</h1>';
         $arrActoresParo = filtraTablaId($arrActores, $arrActoresParoID, true);
         return $innerHtml .= imprimirTablaPeliculas($arrActoresParo, null, null, $arrActoresParoID, true);
-    }else{
+    } else {
         $innerHtml .= '<h1>Actores en paro</h1>';
         return $innerHtml .= imprimirTablaPeliculas($arrActores, null, null, $arrActoresParoID, true);
     }
@@ -215,7 +291,7 @@ function imprimirReparto($arrActores) {
     $html = '';
     for ($index = 0; $index < count($arrActores); $index++) {
         $html .= '<article class="p-3 m-3 card bg-secondary  text-white d-flex flex-column align-center">';
-        $arrActor = get_object_vars($arrActores[$index]);
+        $arrActor = $arrActores[$index]->toArray();
         for ($j = 0; $j < count($arrActor); $j++) {
             $key = array_keys($arrActor)[$j];
             switch ($key) {
