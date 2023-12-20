@@ -127,11 +127,19 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
         $html .= '</tr>';
                 // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
                 if ($arrTablaExtra !== null)
-            $html .= entornoTr(entornoTable(entornoTr(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion))))));
+            $html .= entornoTr(entornoTd(entornoCajaFlex(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion)))),count($arrPeliculas)+3));
     }
 
     $html .= '</tbody></table>';
     return $html;
+}
+
+function entornoCajaFlex($innerHtml) {
+    return '<div class="d-flex justify-content-center align-center text-center">'.$innerHtml.'</div>';
+}
+
+function entornoTd($innerTd,$colspan) {
+    return '<td colspan='.$colspan.'>'.$innerTd.'</td>';
 }
 
 function entornoTable($innerTable) {
@@ -141,7 +149,7 @@ function entornoTable($innerTable) {
 function imprimirReparto($arrActores) {
     $html = '';
     for ($index = 0; $index < count($arrActores); $index++) {
-        $html .= '<td>';
+        $html .= '<article class="card bg-dark text-white d-flex flex-column align-center">';
         $arrActor = get_object_vars($arrActores[$index]);
         for ($j = 0; $j < count($arrActor); $j++) {
             $key = array_keys($arrActor)[$j];
@@ -160,7 +168,7 @@ function imprimirReparto($arrActores) {
             }
         }
         //$html .= imprimirControlesTabla($arrActor["id"], true,"eliminarActorId_");
-        $html.='</td>';
+        $html.='</article>';
     }
     return $html;
 }

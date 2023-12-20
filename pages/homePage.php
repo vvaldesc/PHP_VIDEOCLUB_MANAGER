@@ -1,35 +1,24 @@
 <?php
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
-session_start();
-
-
-if($_SERVER["REQUEST_METHOD"]=="POST"){
-    $miUsuario=unserialize(base64_decode($_POST["miUsuario"]));
-    $miUsuario->actualizarPost($_POST);
-    unset($_POST["muUsuario"]);
-}
-
-
-if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin($tabla)) {
-    crearInstanciaUsuario($miUsuario, $tabla);
-} else if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST") {
-    switch (FuncionalidadPeliculas($funcionalidadID)) {
-        case "anadirPelicula":
-            anadirPelicula($_POST["maxIDPeliculas"]);
-            break;
-        case "modificarPelicula":
-            modificarPelicula();
-            break;
-        case "eliminarPelicula":
-            eliminarPeliculas($funcionalidadID);
-            break;
-        default:
-            break;
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
+    session_start();
+    if (isset($_POST["miUsuario"])) {
+        $miUsuario = unserialize(base64_decode($_POST["miUsuario"]));
+        $miUsuario->actualizarPost($_POST);
+        $miUsuario->actualizarSesion($_SESSION,false);
+    }   else{
+        $_POST["password"]=hash('sha512', $_POST['password']);
     }
-} else{
-    //header('Location: ./pages/homepage.php?miUsuario='.$_POST["miUsuario"]);
-}
-
+    if ($_SERVER["REQUEST_METHOD"]==="POST" && comprobarLogin($tabla)) {
+        isset($_POST["miUsuario"]) ? gestionarFuncionalidad() : crearInstanciaUsuario($miUsuario, $tabla, $_SESSION);
+        unset($password,$tabla);
+        if (isset($_POST["miUsuario"])) unset ($_POST["miUsuario"]);
+        if (isset($_POST["password"])) unset ($_POST["password"]);
+    } else{
+        crearInstanciaLogError($_POST["usr"]);
+        $url = '../index.php?formError=true&usr=' . urlencode($_POST["usr"]);
+        header('Location: ../index.php?formError=true&usr='.$_POST["usr"].'');
+        exit();
+    }
 ?>
 
 <!DOCTYPE html>
@@ -75,15 +64,16 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
 
                 <?php 
                     //$miUsuario=unserialize(base64_decode($_POST["miUsuario"]));
-                    if($_SERVER["REQUEST_METHOD"]=="GET") {
+                    /*if($_SERVER["REQUEST_METHOD"]=="GET") {
                         $miUsuario=unserialize(base64_decode($_GET["miUsuario"]));
                         $miUsuario->actualizarSesion($_SESSION);
-                    }
+                    }*/
                     $sqlActores="SELECT * FROM ACTORES";
                     $tablaPeliculasActores = extraerTablas($sqlActores, true);  unset($sqlActores);
                     $sqlActuan="SELECT * FROM ACTUAN";
                     $tablaActuan = extraerTablas($sqlActuan, true);  unset($sqlActuan);
                     $tabla=extraerTablas("SELECT * FROM PELICULAS");
+                    
                     if (!isset($arrPeliculas)) {
                         $arrPeliculas = crearInstanciasPelicula($tabla,$maxIDPelicula);
                     }
@@ -94,6 +84,9 @@ if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && c
                     }
                     unset($tabla);
                     echo entornoFormulario(imprimirTablaPeliculas($arrPeliculas,$arrActores,$tablaActuan),$miUsuario,$maxIDPelicula);
+                    
+                    
+                    
                 ?>
                 
             </main>

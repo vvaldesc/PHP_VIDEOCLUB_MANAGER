@@ -1,22 +1,7 @@
 <?php 
     include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
     session_start();
-    if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST" && comprobarLogin($tabla)){
-        //Calling an user instance only if login is succesfull, it creates log instance too
-        crearInstanciaUsuario($miUsuario,$tabla);
-        //Refreshing session values
-        //$miUsuario->actualizarSesion($_SESSION);
-        //Heading to homepage
-        $_POST["miUsuario"]=base64_encode(serialize($miUsuario));
-        header('Location: ./pages/homepage.php?miUsuario='.$_POST["miUsuario"]);
-    } else if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"]=="POST"){
-        $formError;
-        //Creating error log instance
-        crearInstanciaLogError($_POST["usr"]);
-    } else{
-        $formError;
-        $miUsuario=null;
-    }
+    $formError = (isset($_GET["usr"]));
 ?>
 
 <!DOCTYPE html>
@@ -78,16 +63,15 @@
                             <div class="col-lg-6 mb-5 mb-lg-0">
                                 <div class="card">
                                     <div class="card-body py-5 px-md-5">
-                                        <form method="POST" class="mt-4 p-4 d-flex flex-column" action='<?= $_SERVER["PHP_SELF"]?>'>
+                                        <form method="POST" class="mt-4 p-4 d-flex flex-column" action='pages/homePage.php'>
                                             <!--alomejor sobra-->
-                                            <input type="hidden" name="miUsuario" value="<?php echo !$miUsuario==null ? base64_encode(serialize($miUsuario)) : ''; ?>">
                                             
                                             <span class="login100-form-title p-b-26">
                                                 Welcome
                                             </span>   
                                                                                        
                                             <div class="wrap-input100 validate-input" data-validate = "Valid email is: a@b.c">
-                                                <input class="input100" value="<?= isset($_POST["usr"]) ? $_POST["usr"] : "" ?>" type="text" name="usr">
+                                                <input class="input100" value="<?= $formError===true ? urldecode($_GET["usr"]) : "" ?>" type="text" name="usr">
                                                 <span class="focus-input100" data-placeholder="Email"></span>
                                             </div>
 
@@ -95,7 +79,7 @@
                                                 <span class="btn-show-pass">
                                                     <i class="zmdi zmdi-eye"></i>
                                                 </span>
-                                                <input class="input100" type="password" name="pass">
+                                                <input class="input100" type="password" name="password">
                                                 <span class="focus-input100" data-placeholder="Password"></span>
                                             </div>
                                             

@@ -12,14 +12,19 @@ class Usuario {
     private $log;
 
     // Método constructor para inicializar el usuario con sus atributos
-    public function __construct($id, $username, $password, $rol) {
+    public function __construct($id, $username, $password, $rol, &$sesion_aux) {
         $this->id = $id;
         $this->username = $username;
         $this->password = $password;
         $this->rol = $rol;
         $this->log = new Log($id, $username, $error = false);
-        $this->actualizarSesion($_SESSION);
+        $this->actualizarSesion($sesion_aux,true);
+        //$this->actualizarPost($_POST);
         //$this_>iniciarCookieSesion();
+    }
+    
+    public function passwordHasher() {
+        return $this->password = hash('sha512', $password);
     }
 
     public function __toString() {
@@ -34,10 +39,10 @@ class Usuario {
      * @param array $sesion_aux
      * @param type $tabla
      */
-    public function actualizarSesion(&$sesion_aux) {
+    public function actualizarSesion(&$sesion_aux,$encriptar) {
         //Encriptado
-        $rolEncriptado = password_hash($this->rol, PASSWORD_BCRYPT);
-        $sesion_aux['rol'] = $rolEncriptado;
+        if($encriptar===true) $this->rol = password_hash($this->rol, PASSWORD_BCRYPT);
+        $sesion_aux['rol'] = $this->rol;
     }
     
     public function iniciarCookieSesion(&$sesion_aux) {
@@ -46,8 +51,9 @@ class Usuario {
     
     public function actualizarPost(&$post_aux) {
         //Encriptado
-        $passEncriptado = password_hash($this->password, PASSWORD_BCRYPT);
-        $_POST["contrasena"] = isset($_POST["contrasena"]) ? $passEncriptado : $_POST["contrasena"] = $passEncriptado;
+        $_POST["password"] = $this->password;
+        $_POST["usr"] = $this->username;
+
 }
     
     public function __destruct() {

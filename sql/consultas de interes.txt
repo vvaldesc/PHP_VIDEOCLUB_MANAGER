@@ -1,3 +1,5 @@
+Pedir los datos de acotres y películas en una sola tabla:
+
 SELECT 
     peliculas.id AS id_pelicula,
     peliculas.titulo AS titulo_pelicula,
@@ -48,3 +50,7 @@ WHERE NOT EXISTS (
     FROM peliculas
     WHERE actores.id = peliculas.id
 );
+
+Borrar todas las tablas:
+
+DROP TABLE IF EXISTS actuan,actores, log, peliculas, usuarios, vendedores;
