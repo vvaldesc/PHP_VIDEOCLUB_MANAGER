@@ -14,14 +14,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
  * 
  */
 function comprobarLogin(&$tabla) {
-    if (isset($_POST["pass"]) && isset($_POST["usr"])) {
-        if (/* $_POST["pass"] != '' && */$_POST["usr"] != '') {
+    if (isset($_POST["password"]) && isset($_POST["usr"])) {
+        if (/* $_POST["password"] != '' && */$_POST["usr"] != '') {
             try {
                 //Sentencia SQL
                 $sql = "SELECT * FROM usuarios WHERE USERNAME = '" . $_POST['usr'] . "';";
                 // AL SER USUARIO CLAVE UNICA LA PRIMERA CONDICIÓN ES PRÁCTICAMENTE INNECESARIA
-                $tabla = extraerTablas($sql);
-                if (count($tabla) == 1 && $_POST["pass"] == $tabla[0]["password"]) {
+                $tabla = extraerTablas($sql,true);
+                if (count($tabla) == 1 && $_POST['password'] == $tabla[0]["password"]) {
                     return true;
                 } else {
                     echo mensajeError("La contraseña o el usuario no es correcto");
@@ -36,8 +36,8 @@ function comprobarLogin(&$tabla) {
     return false;
 }
 
-function crearInstanciaUsuario(&$miUsuario, $tabla) {
-    $miUsuario = new Usuario($tabla[0]["id"], $tabla[0]["username"], $tabla[0]["password"], $tabla[0]["rol"]);
+function crearInstanciaUsuario(&$miUsuario, $tabla, &$sesion_aux) {
+    $miUsuario = new Usuario($tabla[0]["id"], $tabla[0]["username"], $tabla[0]["password"], $tabla[0]["rol"], $_SESSION);
 }
 
 function crearInstanciaLogError($username) {
@@ -124,15 +124,18 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
             $html .= '</td>';
         }
         password_verify('1', $_SESSION['rol']) ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
-        // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
-        if ($arrTablaExtra !== null)
-            $html .= entornoTr(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion))), count($arrPeliculas) + 2);
-
         $html .= '</tr>';
+                // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
+                if ($arrTablaExtra !== null)
+            $html .= entornoTr(entornoTable(entornoTr(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion))))));
     }
 
     $html .= '</tbody></table>';
     return $html;
+}
+
+function entornoTable($innerTable) {
+    return '<table class="table text-white">'.$innerTable.'</table>';
 }
 
 function imprimirReparto($arrActores) {
@@ -156,12 +159,13 @@ function imprimirReparto($arrActores) {
                     break;
             }
         }
-        $html .= imprimirControlesTabla($arrActor["id"], true,"eliminarActorId_");
+        //$html .= imprimirControlesTabla($arrActor["id"], true,"eliminarActorId_");
+        $html.='</td>';
     }
     return $html;
 }
 
-function entornoTr($innerHTML, $colspan) {
+function entornoTr($innerHTML) {
     return '<tr>' . $innerHTML . '</tr>';
 }
 
@@ -198,6 +202,22 @@ function mensajeError($message) {
                     </p>
                 </div>
             </nav>';
+}
+
+function gestionarFuncionalidad() {
+    switch (FuncionalidadPeliculas($funcionalidadID)) {
+        case "anadirPelicula":
+            anadirPelicula($_POST["maxIDPeliculas"]);
+            break;
+        case "modificarPelicula":
+            modificarPelicula();
+            break;
+        case "eliminarPelicula":
+            eliminarPeliculas($funcionalidadID);
+            break;
+        default:
+            break;
+    }
 }
 
 /**
@@ -277,6 +297,13 @@ function imprimirInputsHiddenForm($datosEnviar) {
     return '<input type="hidden" name="datosEnviar" value=' . $datosEnviar . '></input>';
 }
 
+function eliminarActor($funcionalidadID) {
+    
+    //Se trata de eliminar la relación del actor con la película
+    
+    
+}
+
 /**
  * I/O Parameter used to get proper info about how the database is going to be modified.
  * It checks multiple deletions too.
@@ -292,7 +319,7 @@ function obtenerID($key) {
  * I/O Parameter used to get proper info about how Data Base is going to be modified.
  * It checks multiple deletions too
  * 
- * @param type $funcionalidadID
+ * @param array $funcionalidadID
  * @return string
  */
 function funcionalidadPeliculas(&$funcionalidadID) {
@@ -328,7 +355,6 @@ function funcionalidadPeliculas(&$funcionalidadID) {
             // Iterate over the remaining keys to collect selector IDs.
             while ($i < count($clavePost)) {
                 $key = $clavePost[$i];
-
                 if (strpos($key, "selectorPeliculaId") === 0 || strpos($key, "eliminarPeliculaId") === 0) {
                     $id = obtenerID($key);
                     array_push($arrSelectorIDs, $id);
@@ -346,8 +372,12 @@ function anadirPelicula($maxIDPeliculas) {
     insertar("peliculas", array("id" => $maxIDPeliculas + 1, "titulo" => $_POST["nuevaPelicula_Titulo"], "genero" => $_POST["nuevaPelicula_Genero"], "pais" => $_POST["nuevaPelicula_Pais"], "anyo" => $_POST["nuevaPelicula_Anyo"], "cartel" => $_POST["nuevaPelicula_Cartel"]));
 }
 
-function modificarPelicula() {
-    return 0;
+function modificarPelicula($id, $nuevoTitulo, $nuevoGenero, $nuevoPais, $nuevoAnyo, $nuevoCartel) {
+    // Sentencia SQL para actualizar una película
+    //$sql = "UPDATE peliculas SET titulo = '$nuevoTitulo', genero = '$nuevoGenero', pais = '$nuevoPais', anyo = $nuevoAnyo, cartel = '$nuevoCartel' WHERE id = $id;";
+    //modificarTabla($tabla, $dato);
+    // Ejecutar la sentencia SQL
+    ejecutarConsulta($sql);
 }
 
 function eliminarPeliculas($funcionalidadID) {
@@ -360,6 +390,7 @@ function eliminarPeliculas($funcionalidadID) {
     } else {
         $valores = $funcionalidadID["id"];
     }
+    eliminarDatos("actuan", "idpelicula", $valores);
     // Eliminar datos utilizando el valor o la combinación de valores
     eliminarDatos("peliculas", "id", $valores);
 }
