@@ -129,12 +129,11 @@ function imprimirAtributosMostrar($nombre, $valor, &$id) {
 function entornoInputsModificarPelicula($innerHTML, &$imprimido, $idPelicula) {
     if (!$imprimido) {
         $innerHTML .= '<input type="hidden" name="modificarBD" value="true">';
-        $innerHTML .= '<input type="hidden" name="IDpeliculaModificar" value="'.$idPelicula.'">';
+        $innerHTML .= '<input type="hidden" name="IDpeliculaModificar" value="' . $idPelicula . '">';
         $imprimido = true;
     }
     return $innerHTML;
 }
-
 
 function imprimirAtributosInput($nombre, $valor, &$id) {
     $htmlTd = '';
@@ -157,6 +156,7 @@ function imprimirAtributosInput($nombre, $valor, &$id) {
 }
 
 function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null) {
+    if (empty($arrPeliculas)) return '';
     if ($arrTablaRelacion !== null)
         $arrActoresParo = array();
     $html = '<table class="table text-white">';
@@ -172,9 +172,7 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
         $arrAtributos = get_object_vars($arrPeliculas[$i]);
 
         foreach ($arrAtributos as $nombre => $valor) {
-            isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"] 
-                    ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido,$arrAtributos["id"])) 
-                    : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
+            isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"] ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido, $arrAtributos["id"])) : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
         }
         password_verify('1', $_SESSION['rol']) && $tablaNoFuncional === null ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
         $html .= '</tr>';
@@ -184,20 +182,20 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
             $arrActoresParo = array_unique(array_merge($arrActoresParo, $arrIdActores));
         }
     }
-
     $html .= '</tbody></table>';
     return $html;
 }
 
 function anadirListaParo($innerHtml = null, $arrActoresParoID, $arrActores) {
-    if (password_verify('1', $_SESSION['rol'])) {
-        if ($innerHtml === null)
-            $innerHtml = '';
-        if (count($arrActoresParoID) > 0) {
-            $innerHtml .= '<h1>Actores en paro</h1>';
-            $arrActoresParo = filtraTablaId($arrActores, $arrActoresParoID, true);
-            return $innerHtml .= imprimirTablaPeliculas($arrActoresParo, null, null, $arrActoresParoID, true);
-        }
+    if ($innerHtml === null)
+        $innerHtml = '';
+    if (isset($arrActoresParoID) && count($arrActoresParoID) > 0) {
+        $innerHtml .= '<h1>Actores en paro</h1>';
+        $arrActoresParo = filtraTablaId($arrActores, $arrActoresParoID, true);
+        return $innerHtml .= imprimirTablaPeliculas($arrActoresParo, null, null, $arrActoresParoID, true);
+    }else{
+        $innerHtml .= '<h1>Actores en paro</h1>';
+        return $innerHtml .= imprimirTablaPeliculas($arrActores, null, null, $arrActoresParoID, true);
     }
 }
 
@@ -302,10 +300,12 @@ function gestionarFuncionalidad() {
  * @param type $datosEnviar
  * @return type
  */
-function entornoFormulario($innerForm, $miUsuario, $maxIDPeliculas) {
-    return '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">'
+function entornoFormularioPrincipal($innerForm, $miUsuario, $maxIDPeliculas) {
+
+    return ''
+            . '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">'
             . $innerForm
-            . (isset($_SESSION["rol"]) && password_verify('1', $_SESSION['rol']) ? modalAnadirPelicula() : '')
+            . modalAnadirPelicula()
             . '<input type="hidden" name="miUsuario" value="' . (!empty($miUsuario) ? base64_encode(serialize($miUsuario)) : '') . '">'
             . '<input type="hidden" name="maxIDPeliculas" value="' . $maxIDPeliculas . '">'
             . '</form>';
@@ -456,7 +456,7 @@ function modificarPelicula($id) {
                     "Anyo" => $_POST["modificarInput_Anyo"],
                     "Cartel" => $_POST["modificarInput_Cartel"]
                 )
-        ,$_POST["IDpeliculaModificar"]);
+                , $_POST["IDpeliculaModificar"]);
     } else {
         $_POST["mostrarInputsPelicula_ID"] = $id;
     }

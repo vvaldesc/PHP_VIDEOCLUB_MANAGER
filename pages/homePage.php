@@ -82,8 +82,14 @@
                         $arrActores = crearInstanciasActores($arrActores,$maxIDActor);
                     }
                     unset($tabla);
-                    echo entornoFormulario(anadirListaParo(imprimirTablaPeliculas($arrPeliculas,$arrActores,$tablaActuan,$arrActoresParo),$arrActoresParo,$arrActores),$miUsuario,$maxIDPelicula);
                     
+                    $esRolAdmin = isset($_SESSION["rol"]) && password_verify('1', $_SESSION['rol']);
+                    
+                    echo $esRolAdmin
+                        ? entornoFormularioPrincipal(anadirListaParo(imprimirTablaPeliculas($arrPeliculas, $arrActores, $tablaActuan, $arrActoresParo), $arrActoresParo, $arrActores), $miUsuario, $maxIDPelicula)
+                        : imprimirTablaPeliculas($arrPeliculas, $arrActores, $tablaActuan, $arrActoresParo);
+
+                        
                     
                     
                     
