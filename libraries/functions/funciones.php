@@ -8,20 +8,37 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/actor.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/usuario.php';
 
+function direccionMail($id) {
+    switch ($id) {
+        case 1:
+            return "admin@yopmail.com";
+            break;
+        case 3:
+            return "delegado@yopmail.com";
+            break;
+        default:
+            break;
+    }
+}
+
 /**
  * Incluye un nuevo archivo PHP para encapsular las dependencias de PHPMailer
  * Creemos que esto ayuda a ordenar código y ahorrar espacio en memoria
  */
-function enviarMail() {
+function enviarMail($mailReceptor, $mensaje) {
 
     //HAGO ESTO PARA QUE SE CARGUEN LAS DEPENDENCIAS DE PHP MAILER SOLO CUANDO HAYA QUE ENVIAR UN MAIL
     //DE CASO CONTRARIO SE CARGARÍAN CADA VEZ QUE SE USA UNA FUNCIÓN
     // Ruta al archivo PHP que deseas incluir
-    $rutaPHPMailer = $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/enviarMailDependencias.php';
+    $rutaPHPMailer = $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/enviarMailDependencias.php';
     // Verificar si el archivo existe antes de incluirlo
     if (file_exists($rutaPHPMailer)) {
+        $_SESSION["mailReceptor"]=$mailReceptor;
+        $_SESSION["mensaje"]=$mensaje;
         // Incluir el archivo
         include $rutaPHPMailer;
+        unset($_SESSION["mailReceptor"]);
+        unset($_SESSION["mensaje"]);
     } else {
         // Manejar el caso en que el archivo no existe
         echo 'El archivo no existe.';
@@ -29,10 +46,10 @@ function enviarMail() {
 }
 
 function inputsFormularioMailAdmin($tablaAdmins) {
-    return imprimirTablaPeliculas($tablaAdmins, null, null, $arrActoresParo, true) .
+    return imprimirTablaPeliculas($tablaAdmins, null, null, $arrActoresParo, true, true) .
             '<div class="form-group">
                 <label for="exampleFormControlTextarea1">Example textarea</label>
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                <textarea name="mensajeMail" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
             </div>';
 }
 
@@ -53,8 +70,11 @@ function entornoOptions($tabla) {
     return '';
 }
 
-function entornoFormulario($innerForm) {
-    return '<form>' . $innerForm . '</form>';
+function entornoFormulario($innerForm,$miUsuario) {
+    return '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">' 
+    . $innerForm 
+    . '<input type="hidden" name="miUsuario" value="' . (!empty($miUsuario) ? base64_encode(serialize($miUsuario)) : '') . '">'
+    . '</form>';
 }
 
 /**
@@ -204,7 +224,7 @@ function entornoInputsModificarPelicula($innerHTML, &$imprimido, $idPelicula) {
 
 function imprimirAtributosInput($nombre, $valor, &$id) {
     $htmlTd = '';
-    //$htmlTd .= '<input type="hidden" name="modificarBD" value="'.true.'">';
+//$htmlTd .= '<input type="hidden" name="modificarBD" value="'.true.'">';
     switch ($nombre) {
         case "id":
             $htmlTd .= $valor;
@@ -222,7 +242,7 @@ function imprimirAtributosInput($nombre, $valor, &$id) {
     return $htmlTd;
 }
 
-function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null) {
+function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null, $enviarMail = false) {
     if (empty($arrPeliculas))
         return '';
     if ($arrTablaRelacion !== null)
@@ -237,12 +257,16 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
     if (is_object($arrPeliculas[0])) {
         foreach (($arrPeliculas[0]->toArray()) as $columna => $valor) {
             if ($valor !== null)
-                $html .= '<th scope="col">' . $columna . '</th>';
+                $html .= '<th class="text-center" scope="col">' . $columna . '</th>';
         }
     } else {
         return '';
     }
+
     $esAdmin === true ? $html .= imprimirIndicesControlesTabla(count($arrPeliculas)) : null;
+    if ($enviarMail)
+        $html .= imprimirIndiceControlMail(count($arrPeliculas));
+
     $html .= '</tr></thead><tbody>';
     for ($i = 0; $i < count($arrPeliculas); $i++) {
         $html .= '<tr>';
@@ -250,15 +274,27 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
         foreach ($arrAtributos as $nombre => $valor) {
             isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"] ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido, $arrAtributos["id"])) : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
         }
+
         $esAdmin === true ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
+        if ($enviarMail)
+            $html .= imprimirControlMail($arrAtributos["id"]);
+
         $html .= '</tr>';
-        // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
+// se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
         if ($arrTablaExtra !== null) {
             $html .= entornoTr(entornoTd(entornoCajaFlex(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion, $arrIdActores)))), count($arrPeliculas) + 3));
             $arrActoresParo = array_unique(array_merge($arrActoresParo, $arrIdActores));
         }
     }
     $html .= '</tbody></table>';
+    return $html;
+}
+
+function imprimirControlMail($id) {
+    $html = '';
+    $html .= '<td>';
+    $html .= '<button type="submit" class="btn btn-primary" name="enviarMailId_' . $id . '">Enviar</button>';
+    $html .= '</td>';
     return $html;
 }
 
@@ -308,7 +344,7 @@ function imprimirReparto($arrActores) {
                     break;
             }
         }
-        //$html .= imprimirControlesTabla($arrActor["id"], true,"eliminarActorId_");
+//$html .= imprimirControlesTabla($arrActor["id"], true,"eliminarActorId_");
         $html .= '</article>';
     }
     return $html;
@@ -322,7 +358,7 @@ function imprimirControlesTabla($id, $soloBorrar = false, $nombreBorrar = null) 
     $html = '';
     if (!$soloBorrar)
         $html = '<td>';
-    //nombre operador ternario hacer name="eliminarPeliculaId_' 
+//nombre operador ternario hacer name="eliminarPeliculaId_' 
     $html .= '<button type="submit" class="btn btn-danger" name=' . ($nombreBorrar === null ? 'eliminarPeliculaId_' : $nombreBorrar) . '' . $id . '>Eliminar</button>';
     if (!$soloBorrar) {
         $html .= '</td>';
@@ -340,6 +376,11 @@ function imprimirIndicesControlesTabla($max) {
     $html = '<th scope="col">' . $max . '</th>';
     $html .= '<th scope="col">' . $max + 1 . '</th>';
     $html .= '<th scope="col">' . $max + 2 . '</th>';
+    return $html;
+}
+
+function imprimirIndiceControlMail($max) {
+    $html = '<th scope="col">' . $max . '</th>';
     return $html;
 }
 
@@ -363,6 +404,9 @@ function gestionarFuncionalidad() {
             break;
         case "eliminarPelicula":
             eliminarPeliculas($funcionalidadID);
+            break;
+        case "enviarMail":
+            enviarMail(direccionMail($funcionalidadID["id"]), $funcionalidadID["mensaje"]);
             break;
         default:
             break;
@@ -444,13 +488,13 @@ function inputsAnadirPelicula() {
 }
 
 function imprimirInputsHiddenForm($datosEnviar) {
-    //AQUI ENTRAN TODOS LOS INPUTS QUE HAN DE ENTRAR, DEBERIA DDE SER EL ARRAY DIRECTAMENTE
+//AQUI ENTRAN TODOS LOS INPUTS QUE HAN DE ENTRAR, DEBERIA DDE SER EL ARRAY DIRECTAMENTE
     return '<input type="hidden" name="datosEnviar" value=' . $datosEnviar . '></input>';
 }
 
 function eliminarActor($funcionalidadID) {
 
-    //Se trata de eliminar la relación del actor con la película
+//Se trata de eliminar la relación del actor con la película
 }
 
 /**
@@ -472,18 +516,22 @@ function obtenerID($key) {
  * @return string
  */
 function funcionalidadPeliculas(&$funcionalidadID) {
-    // Get all keys from $_POST.
+// Get all keys from $_POST.
     $clavePost = array_keys($_POST);
     $arrSelectorIDs = array();
     for ($i = 0; $i < count($clavePost); $i++) {
         $key = $clavePost[$i];
-        // Check if the key contains "selectorMovieId".
+// Check if the key contains "selectorMovieId".
+        if (strpos($key, "enviarMailId") === 0) {
+            $funcionalidadID = array("id" => obtenerID($key), "mensaje" => $_POST["mensajeMail"]);
+            return "enviarMail";
+        }
         if (strpos($key, "selectorPeliculaId") === 0) {
             // Get the ID and add it to the array of selector IDs.
             $id = obtenerID($key);
             array_push($arrSelectorIDs, $id);
         }
-        // Check other functionalities based on $_POST keys.
+// Check other functionalities based on $_POST keys.
         if (strpos($key, "anadirPelicula") === 0) {
             // Return the "anadirPelicula" functionality.
             $funcionalidadID = array("funcion" => "anadirPelicula");
@@ -549,6 +597,6 @@ function eliminarPeliculas($funcionalidadID) {
         $valores = $funcionalidadID["id"];
     }
     eliminarDatos("actuan", "idpelicula", $valores);
-    // Eliminar datos utilizando el valor o la combinación de valores
+// Eliminar datos utilizando el valor o la combinación de valores
     eliminarDatos("peliculas", "id", $valores);
 }

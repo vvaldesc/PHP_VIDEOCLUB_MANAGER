@@ -31,18 +31,18 @@ try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username ='concesionarioconce@gmail.com'; // Cambia esto
-    $mail->Password = 'foad dfhp viwj vhmo'; //  // 'conce200#'
+    $mail->Username ='videoclubtalavera@gmail.com';
+    $mail->Password = 'vkrn pzeu bfjb bjnv'; //
     $mail->SMTPSecure = 'ssl';
     $mail->Port = 465;
     $mail->Timeout = 5;
 
     $mail->setFrom('concesionarioconce@gmail.com');
-    $mail->addAddress($_SESSION['email']); // Cambia esto al destinatario real
+    $mail->addAddress($_SESSION["mailReceptor"]); // Cambia esto al destinatario real
 
     $mail->isHTML(false);
     $mail->Subject = "Inicio de sesion con tu cuenta";
-    $mail->Body = "Se ha iniciado sesión en tu cuenta.";
+    $mail->Body = $_SESSION["mensaje"];
 
     $mail->send();
     echo 'Correo enviado con éxito';

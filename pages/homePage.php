@@ -87,7 +87,7 @@
                     if (!$esRolAdmin) {
                         $tabla=extraerTablas("SELECT * FROM USUARIOS WHERE ROL = 1",true);
                         $arrAdmins=crearInstanciasAdminsAux($tabla);
-                        echo entornoFormulario(inputsFormularioMailAdmin($arrAdmins));
+                        echo entornoFormulario(inputsFormularioMailAdmin($arrAdmins),$miUsuario);
                     }
                 ?>
                 
