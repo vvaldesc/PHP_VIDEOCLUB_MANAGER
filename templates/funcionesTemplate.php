@@ -4,11 +4,23 @@
     
 //en este fichero están todas las funciónes que están pensadas para imprimir código html y que no dependen de '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php'.
 
-
+/**
+ * Introduces parameter into a select element
+ * 
+ * @param string $innerForm
+ * @return type string
+ */
 function entornoSelect($innerForm) {
     return '<select class="form-control" id="exampleFormControlSelect1">' . $innerForm . '</form>';
 }
 
+/**
+ * Creates a form element with specified inner content and hidden input for user data
+ * 
+ * @param string $innerForm
+ * @param Usuario $miUsuario
+ * @return string
+ */
 function entornoFormulario($innerForm,$miUsuario) {
     return '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">' 
     . $innerForm 
@@ -16,11 +28,19 @@ function entornoFormulario($innerForm,$miUsuario) {
     . '</form>';
 }
 
-function imprimirAtributosMostrar($nombre, $valor, &$id) {
+/**
+ * Prints attributes for display, $id I/O parameter meant to return id of the displayed element.
+ * 
+ * @param string $columna
+ * @param mixed $valor
+ * @param mixed $id
+ * @return string
+ */
+function imprimirAtributosMostrar($columna, $valor, &$id) {
     $htmlTd = '';
-    if ($nombre === 'cartel') {
+    if ($columna === 'cartel') {
         $htmlTd .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/carteles/' . $valor . '" alt="Cartel">';
-    } else if ($nombre === 'id') {
+    } else if ($columna === 'id') {
         $htmlTd .= $valor;
         $id = $valor;
     } else {
@@ -29,6 +49,44 @@ function imprimirAtributosMostrar($nombre, $valor, &$id) {
     return $htmlTd;
 }
 
+/**
+ * Prints attributes for midificate, $id I/O parameter meant to return id of the displayed element.
+ * 
+ * @param string $columna
+ * @param mixed $valor
+ * @param mixed $id
+ * @return string
+ */
+function imprimirAtributosInput($columna, $valor, &$id) {
+    $htmlTd = '';
+//$htmlTd .= '<input type="hidden" name="modificarBD" value="'.true.'">';
+    switch ($columna) {
+        case "id":
+            $htmlTd .= $valor;
+            $id = $valor;
+            break;
+        case "titulo": case "genero": case"pais": case"anyo":
+            $htmlTd .= '<input class="form-control" type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($columna) . '">';
+            break;
+        case "cartel":
+            $htmlTd .= '<input class="form-control" type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($columna) . '">';
+            break;
+        default:
+            break;
+    }
+    return $htmlTd;
+}
+
+/**
+ * Prints necessary hidden inputs to determinate wich film is going to be updated, if this varible is set we know
+ * the database has to be updated.
+ * I/O $imprimido controls inputs are ptinted once.
+ * 
+ * @param string $innerHTML
+ * @param bool $imprimido
+ * @param int $idPelicula
+ * @return string
+ */
 function entornoInputsModificarPelicula($innerHTML, &$imprimido, $idPelicula) {
     if (!$imprimido) {
         $innerHTML .= '<input type="hidden" name="modificarBD" value="true">';
@@ -38,46 +96,57 @@ function entornoInputsModificarPelicula($innerHTML, &$imprimido, $idPelicula) {
     return $innerHTML;
 }
 
-function imprimirAtributosInput($nombre, $valor, &$id) {
-    $htmlTd = '';
-//$htmlTd .= '<input type="hidden" name="modificarBD" value="'.true.'">';
-    switch ($nombre) {
-        case "id":
-            $htmlTd .= $valor;
-            $id = $valor;
-            break;
-        case "titulo": case "genero": case"pais": case"anyo":
-            $htmlTd .= '<input type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($nombre) . '">';
-            break;
-        case "cartel":
-            $htmlTd .= '<input type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($nombre) . '">';
-            break;
-        default:
-            break;
-    }
-    return $htmlTd;
-}
-
-function imprimirControlMail($id) {
+/**
+ * Prints a button for sending mail
+ * 
+ * @param string $idAdmin
+ * @return string
+ */
+function imprimirControlMail($idAdmin) {
     $html = '';
     $html .= '<td>';
-    $html .= '<button type="submit" class="btn btn-primary" name="enviarMailId_' . $id . '">Enviar</button>';
+    $html .= '<button type="submit" class="btn btn-primary" name="enviarMailId_' . $idAdmin . '">Enviar</button>';
     $html .= '</td>';
     return $html;
 }
 
+/**
+ * Creates a flex container div
+ * 
+ * @param string $innerHtml
+ * @return string
+ */
 function entornoCajaFlex($innerHtml) {
     return '<div class="d-flex justify-content-center align-center text-center">' . $innerHtml . '</div>';
 }
 
+/**
+ * Creates a table cell with specified inner content and colspan
+ * 
+ * @param string $innerTd
+ * @param int $colspan
+ * @return string
+ */
 function entornoTd($innerTd, $colspan = 1) {
     return '<td colspan=' . $colspan . '>' . $innerTd . '</td>';
 }
 
+/**
+ * Creates a table element with specified inner content
+ * 
+ * @param string $innerTable
+ * @return string
+ */
 function entornoTable($innerTable) {
     return '<table class="table text-white">' . $innerTable . '</table>';
 }
 
+/**
+ * Prints actor details in a formatted manner
+ * 
+ * @param array $arrActores
+ * @return string
+ */
 function imprimirReparto($arrActores) {
     $html = '';
     for ($index = 0; $index < count($arrActores); $index++) {
@@ -104,10 +173,24 @@ function imprimirReparto($arrActores) {
     return $html;
 }
 
+/**
+ * Creates a table row with specified inner content
+ * 
+ * @param string $innerHTML
+ * @return string
+ */
 function entornoTr($innerHTML) {
     return '<tr>' . $innerHTML . '</tr>';
 }
 
+/**
+ * Prints control buttons for a table row (delete, modify, select)
+ * 
+ * @param mixed $id
+ * @param bool $soloBorrar
+ * @param mixed $nombreBorrar
+ * @return string
+ */
 function imprimirControlesTabla($id, $soloBorrar = false, $nombreBorrar = null) {
     $html = '';
     if (!$soloBorrar)
@@ -126,6 +209,12 @@ function imprimirControlesTabla($id, $soloBorrar = false, $nombreBorrar = null) 
     return $html;
 }
 
+/**
+ * Prints table header cells with indices for control buttons
+ * 
+ * @param int $max The maximum index value
+ * @return string HTML for table header cells
+ */
 function imprimirIndicesControlesTabla($max) {
     $html = '<th scope="col">' . $max . '</th>';
     $html .= '<th scope="col">' . $max + 1 . '</th>';
@@ -133,12 +222,23 @@ function imprimirIndicesControlesTabla($max) {
     return $html;
 }
 
+/**
+ * Prints table header cell with index for mail control button
+ * 
+ * @param int $max The maximum index value
+ * @return string HTML for table header cell
+ */
 function imprimirIndiceControlMail($max) {
     $html = '<th scope="col">' . $max . '</th>';
     return $html;
 }
 
-
+/**
+ * Generates HTML for an error message container
+ * 
+ * @param string $message The error message to be displayed
+ * @return string HTML for the error message container
+ */
 function mensajeError($message) {
     return '<nav class="navbar bg-body-tertiary bg-danger rounded m-2">
                 <div class="container-fluid">
@@ -149,6 +249,11 @@ function mensajeError($message) {
             </nav>';
 }
 
+/**
+ * Generates HTML for input fields to add a new movie
+ * 
+ * @return string HTML for the movie addition input fields
+ */
 function inputsAnadirPelicula() {
     return $formulario = '
         <div class="form-group">
@@ -174,6 +279,11 @@ function inputsAnadirPelicula() {
     ';
 }
 
+/**
+ * Generates HTML for the button to open the modal to add a new movie
+ * 
+ * @return string HTML for the "Add Movie" button
+ */
 function botonModalAnadirPelicula() {
     return $html = '
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
@@ -181,6 +291,11 @@ function botonModalAnadirPelicula() {
               </button>';
 }
 
+/**
+ * Generates HTML for the modal to add a new movie
+ * 
+ * @return string HTML for the modal to add a new movie
+ */
 function modalAnadirPelicula() {
     return $html = botonModalAnadirPelicula() . '
         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -205,6 +320,12 @@ function modalAnadirPelicula() {
     return $html;
 }
 
+/**
+ * Generates HTML for hidden form inputs
+ * 
+ * @param mixed $datosEnviar The data to be sent with the form
+ * @return string HTML for hidden form inputs
+ */
 function imprimirInputsHiddenForm($datosEnviar) {
 //AQUI ENTRAN TODOS LOS INPUTS QUE HAN DE ENTRAR, DEBERIA DDE SER EL ARRAY DIRECTAMENTE
     return '<input type="hidden" name="datosEnviar" value=' . $datosEnviar . '></input>';

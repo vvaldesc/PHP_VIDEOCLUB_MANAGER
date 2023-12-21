@@ -280,6 +280,7 @@ function funcionalidadPeliculas(&$funcionalidadID) {
 // Get all keys from $_POST.
     $clavePost = array_keys($_POST);
     $arrSelectorIDs = array();
+    $enProcesoModificar = false;
     for ($i = 0; $i < count($clavePost); $i++) {
         $key = $clavePost[$i];
 // Check if the key contains "selectorMovieId".
@@ -291,6 +292,9 @@ function funcionalidadPeliculas(&$funcionalidadID) {
             // Get the ID and add it to the array of selector IDs.
             $id = obtenerID($key);
             array_push($arrSelectorIDs, $id);
+        }
+        if (strpos($key, "modificar") === 0) {
+            if(!$enProcesoModificar) $enProcesoModificar = true;
         }
 // Check other functionalities based on $_POST keys.
         if (strpos($key, "anadirPelicula") === 0) {
@@ -311,17 +315,21 @@ function funcionalidadPeliculas(&$funcionalidadID) {
             //Si me encuentro en la ultima posicion y nos e han encontrado selectores...
             //Return eliminar solo con ese id
             // Iterate over the remaining keys to collect selector IDs.
-            while ($i < count($clavePost)) {
+            while ($i < count($clavePost) && $enProcesoModificar === false) {
                 $key = $clavePost[$i];
                 if (strpos($key, "selectorPeliculaId") === 0 || strpos($key, "eliminarPeliculaId") === 0) {
                     $id = obtenerID($key);
                     array_push($arrSelectorIDs, $id);
                 }
                 $i++;
+                if (strpos($key, "modificar") === 0) {
+                    if(!$enProcesoModificar) $enProcesoModificar = true;
+                }
+                
             }
             // Return the "eliminarPelicula" functionality.
             $funcionalidadID = array("funcion" => "eliminarPelicula", "id" => $arrSelectorIDs);
-            return "eliminarPelicula";
+            return $enProcesoModificar === false ? "eliminarPelicula" : '';
         }
     }
 }
@@ -348,6 +356,17 @@ function modificarPelicula($id) {
 }
 
 function eliminarPeliculas($funcionalidadID) {
+    
+    $clavePost = array_keys($_POST);
+    $arrSelectorIDs = array();
+    for ($i = 0; $i < count($clavePost); $i++) {
+        if (strpos($key, "eliminarActor") === 0) {
+
+        }
+    }
+
+    
+    
     if (is_array($funcionalidadID["id"])) {
         $valores = array(); // Crear un array para almacenar los valores
         foreach ($funcionalidadID["id"] as $value) {
