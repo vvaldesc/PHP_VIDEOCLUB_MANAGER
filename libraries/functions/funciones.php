@@ -9,6 +9,13 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/actor.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/models/usuario.php';
 
+
+/**
+ * Provides admin mail direction
+ * 
+ * @param string $id
+ * @return string
+ */
 function direccionMail($id) {
     switch ($id) {
         case 1:
@@ -22,6 +29,13 @@ function direccionMail($id) {
     }
 }
 
+
+/**
+ * Prints admins table
+ * 
+ * @param Admin[] $tablaAdmins
+ * @return string
+ */
 function inputsFormularioMailAdmin($tablaAdmins) {
     return imprimirTablaPeliculas($tablaAdmins, null, null, $arrActoresParo, true, true) .
             '<div class="form-group">
@@ -57,8 +71,8 @@ function enviarMail($mailReceptor, $mensaje) {
 /**
  * Comprueba si el usuario y contraseña son correctos para acceder a la aplicación.
  * 
- * @param array $POST Array que contiene los datos del formulario login.
- * 
+ * @param Usuario $tabla
+ * @return boolean
  */
 function comprobarLogin(&$tabla) {
     if (isset($_POST["password"]) && isset($_POST["usr"])) {

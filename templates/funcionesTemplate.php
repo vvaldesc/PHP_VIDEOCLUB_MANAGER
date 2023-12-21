@@ -196,7 +196,7 @@ function imprimirControlesTabla($id, $soloBorrar = false, $nombreBorrar = null) 
     if (!$soloBorrar)
         $html = '<td>';
 //nombre operador ternario hacer name="eliminarPeliculaId_' 
-    $html .= '<button type="submit" class="btn btn-danger" name=' . ($nombreBorrar === null ? 'eliminarPeliculaId_' : $nombreBorrar) . '' . $id . '>Eliminar</button>';
+    $html .= '<button type="submit" class="btn btn-danger" name="' . ($nombreBorrar === null ? 'eliminarPeliculaId_' : $nombreBorrar) . $id . '">' . (isset($_POST["mostrarInputsPelicula_ID"]) ? 'Cancelar' : 'Eliminar') . '</button>';
     if (!$soloBorrar) {
         $html .= '</td>';
         $html .= '<td>';
