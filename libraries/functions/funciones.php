@@ -370,17 +370,6 @@ function modificarPelicula($id) {
 }
 
 function eliminarPeliculas($funcionalidadID) {
-    
-    $clavePost = array_keys($_POST);
-    $arrSelectorIDs = array();
-    for ($i = 0; $i < count($clavePost); $i++) {
-        if (strpos($key, "eliminarActor") === 0) {
-
-        }
-    }
-
-    
-    
     if (is_array($funcionalidadID["id"])) {
         $valores = array(); // Crear un array para almacenar los valores
         foreach ($funcionalidadID["id"] as $value) {
