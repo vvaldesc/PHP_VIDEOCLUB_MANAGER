@@ -66,6 +66,7 @@
             <main style="max-width: 1000px" class="container m-auto text-center">                 
 
                 <?php 
+                echo '<h1>'.$_COOKIE["ultCone"].'</h1>';
                     //$sqlActores="SELECT * FROM ACTORES";
                     //$tablaPeliculasActores = extraerTablas($sqlActores, true);  unset($sqlActores);
                     $sqlActuan="SELECT * FROM ACTUAN";

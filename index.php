@@ -2,6 +2,7 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
     session_start();
     $formError = (isset($_GET["usr"]));
+    setcookie("ultCone",null,time() + 3000, 'localhost');
 ?>
 
 <!DOCTYPE html>
