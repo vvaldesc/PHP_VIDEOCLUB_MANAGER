@@ -1,5 +1,8 @@
 <?php
     include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/templates/funcionesTemplate.php';
+
+    
     session_start();
     if (isset($_POST["miUsuario"])) {
         $miUsuario = unserialize(base64_decode($_POST["miUsuario"]));
