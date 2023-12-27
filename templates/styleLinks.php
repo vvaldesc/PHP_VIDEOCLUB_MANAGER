@@ -18,6 +18,6 @@
         <!--===============================================================================================-->	
         <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
         <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="css/util.css">
-        <link rel="stylesheet" type="text/css" href="css/main.css">
+        <link rel="stylesheet" type="text/css" href="css/util.css?1.0" media="all" >
+        <link rel="stylesheet" type="text/css" href="css/main.css?1.0" media="all" >
         <!--===============================================================================================-->

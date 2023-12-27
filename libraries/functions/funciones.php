@@ -191,6 +191,19 @@ function crearInstanciasAdminsAux($tabla) {
     return $arrAdmins;
 }
 
+/**
+ * Devuelve el html de la tabla correspindiente, $arrTablaExtra supone un div debajo de cada
+ * fila de la tabla principal, relacionada por $arrTablaRelacion. $arrActoresParo en esencia
+ * es un parámetro e/s que devuelve los id's de la tabla extra no usados en la tabla.
+ * 
+ * @param array $arrPeliculas
+ * @param array $arrTablaExtra
+ * @param array $arrTablaRelacion
+ * @param array $arrActoresParo
+ * @param type $tablaNoFuncional
+ * @param boolean $enviarMail
+ * @return string
+ */
 function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null, $enviarMail = false) {
     if (empty($arrPeliculas))
         return '';
@@ -221,17 +234,17 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
         $html .= '<tr>';
         $arrAtributos = $arrPeliculas[$i]->toArray();
         foreach ($arrAtributos as $nombre => $valor) {
-            isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"] ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido, $arrAtributos["id"])) : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
+            isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"]
+                    ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido, $arrAtributos["id"]))
+                    : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
         }
-
         $esAdmin === true ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
         if ($enviarMail)
             $html .= imprimirControlMail($arrAtributos["id"]);
-
         $html .= '</tr>';
-// se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
+        // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
         if ($arrTablaExtra !== null) {
-            $html .= entornoTr(entornoTd(entornoCajaFlex(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion, $arrIdActores)))), count($arrPeliculas) + 3));
+            $html .= entornoTr(entornoTd(entornoCajaFlex(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion, $arrIdActores)))), count($arrPeliculas[0]->toArray()) + 3));
             $arrActoresParo = array_unique(array_merge($arrActoresParo, $arrIdActores));
         }
     }
@@ -291,13 +304,13 @@ function obtenerID($key) {
  * @return string
  */
 function funcionalidadPeliculas(&$funcionalidadID) {
-// Get all keys from $_POST.
+    // Get all keys from $_POST.
     $clavePost = array_keys($_POST);
     $arrSelectorIDs = array();
     $enProcesoModificar = false;
     for ($i = 0; $i < count($clavePost); $i++) {
         $key = $clavePost[$i];
-// Check if the key contains "selectorMovieId".
+        // Check if the key contains "selectorMovieId".
         if (strpos($key, "enviarMailId") === 0) {
             $funcionalidadID = array("id" => obtenerID($key), "mensaje" => $_POST["mensajeMail"]);
             return "enviarMail";
@@ -310,7 +323,7 @@ function funcionalidadPeliculas(&$funcionalidadID) {
         if (strpos($key, "modificar") === 0) {
             if(!$enProcesoModificar) $enProcesoModificar = true;
         }
-// Check other functionalities based on $_POST keys.
+        // Check other functionalities based on $_POST keys.
         if (strpos($key, "anadirPelicula") === 0) {
             // Return the "anadirPelicula" functionality.
             $funcionalidadID = array("funcion" => "anadirPelicula");
@@ -339,7 +352,6 @@ function funcionalidadPeliculas(&$funcionalidadID) {
                 if (strpos($key, "modificar") === 0) {
                     if(!$enProcesoModificar) $enProcesoModificar = true;
                 }
-                
             }
             // Return the "eliminarPelicula" functionality.
             $funcionalidadID = array("funcion" => "eliminarPelicula", "id" => $arrSelectorIDs);
@@ -370,17 +382,6 @@ function modificarPelicula($id) {
 }
 
 function eliminarPeliculas($funcionalidadID) {
-    
-    $clavePost = array_keys($_POST);
-    $arrSelectorIDs = array();
-    for ($i = 0; $i < count($clavePost); $i++) {
-        if (strpos($key, "eliminarActor") === 0) {
-
-        }
-    }
-
-    
-    
     if (is_array($funcionalidadID["id"])) {
         $valores = array(); // Crear un array para almacenar los valores
         foreach ($funcionalidadID["id"] as $value) {
@@ -391,6 +392,11 @@ function eliminarPeliculas($funcionalidadID) {
         $valores = $funcionalidadID["id"];
     }
     eliminarDatos("actuan", "idpelicula", $valores);
-// Eliminar datos utilizando el valor o la combinación de valores
+    // Eliminar datos utilizando el valor o la combinación de valores
     eliminarDatos("peliculas", "id", $valores);
+}
+
+function cerrarSesion () {
+    session_destroy();
+    $_SESSION[]=array();
 }
