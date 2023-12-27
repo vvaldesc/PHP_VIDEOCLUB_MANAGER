@@ -19,10 +19,10 @@
         if (isset($_POST["usr"])) unset ($_POST["usr"]);
     } else{
         crearInstanciaLogError($_POST["usr"]);
-        $url = '../index.php?formError=true&usr=' . urlencode($_POST["usr"]);
+        isset($_POST["usr"]) ? $url = '../index.php?formError=true&usr=' . urlencode($_POST["usr"]) .'&mensajeNoExisteUsr=true' : $url = '../index.php?formError=true';;
         $_SESSION=[];
         session_destroy();
-        header('Location: ../index.php?formError=true&usr='.$_POST["usr"].'');
+        header('Location: '.$url);
         exit();
     }
 ?>
@@ -64,6 +64,7 @@
     </head>
     <body class="bg-dark">
         <div class="container mx-auto mt-5">
+            <?php include '../templates/header.php'; ?>
 
             <!-- Contenedor principal (main) -->
             <main style="max-width: 1000px" class="container m-auto text-center">                 
@@ -97,9 +98,10 @@
                 
             </main>
             <!-- Aquí va el contenido de tu página -->
-
+        <?php include '../templates/footer.php'; ?>
         </div>
         <!-- Section: Design Block -->
+        
 
     </div>
 

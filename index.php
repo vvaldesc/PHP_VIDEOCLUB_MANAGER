@@ -3,6 +3,8 @@
     session_start();
     $formError = (isset($_GET["usr"]));
     setcookie("ultCone",null,time() + 3000, 'localhost');
+    if (isset($_GET['logout']) && $_GET['logout']==true) cerrarSesion();
+    if (isset($_GET['mensajeNoExisteUsr']) && $_GET['mensajeNoExisteUsr']==true) echo mensajeError("El usuario ".urldecode($_GET["usr"])." no existe o la contraseña es incorrecta");
 ?>
 
 <!DOCTYPE html>
@@ -12,32 +14,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <title>Iniciar Sesión - Videoclub</title>
-
         
-        <!-- Agrega el enlace al archivo CSS de Bootstrap -->
-        <!--===============================================================================================-->	
-        <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="assets/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="assets/fonts/iconic/css/material-design-iconic-font.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
-        <!--===============================================================================================-->	
-        <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
-        <!--===============================================================================================-->	
-        <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="css/util.css">
-        <link rel="stylesheet" type="text/css" href="css/main.css">
-        <!--===============================================================================================-->
-
+        <?php require './templates/styleLinks.php';?>
         
     </head>
     <body class="bg-dark">
@@ -65,7 +43,6 @@
                                 <div class="card">
                                     <div class="card-body py-5 px-md-5">
                                         <form method="POST" class="mt-4 p-4 d-flex flex-column" action='pages/homePage.php'>
-                                            <!--alomejor sobra-->
                                             
                                             <span class="login100-form-title p-b-26">
                                                 Welcome
@@ -98,25 +75,15 @@
                 <!-- Jumbotron -->
             </section>
             <!-- Section: Design Block -->
+            
+        <?php include './templates/footer.php'; ?>
 
         </div>
+        
+        <?php require './templates/scriptLinks.php';?>
+        
+        
 
-        <!--===============================================================================================-->
-        <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/animsition/js/animsition.min.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/bootstrap/js/popper.js"></script>
-        <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/select2/select2.min.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/daterangepicker/moment.min.js"></script>
-        <script src="vendor/daterangepicker/daterangepicker.js"></script>
-        <!--===============================================================================================-->
-        <script src="vendor/countdowntime/countdowntime.js"></script>
-        <!--===============================================================================================-->
-        <script src="js/main.js"></script>
 
     </body>
 </html>

@@ -9,7 +9,6 @@ class Usuario {
     private $username;
     private $password;
     private $rol;
-    private $log;
 
     // Método constructor para inicializar el usuario con sus atributos
     /**
@@ -26,12 +25,14 @@ class Usuario {
         $this->username = $username;
         $this->password = $password;
         $this->rol = $rol;
-        if ($registrarInstancia) $this->log = new Log($id, $username, $error = false) && $this->actualizarSesion($sesion_aux,true);
+        if ($registrarInstancia) {
+            new Log($id, $username, $error = false) && $this->actualizarSesion($sesion_aux, true);
+        }
         //$this->actualizarPost($_POST);
         //$this_>iniciarCookieSesion();
     }
     
-    public function toArray(){
+    private function toArray(){
         return get_object_vars($this);
     }
     
@@ -65,15 +66,10 @@ class Usuario {
         //Encriptado
         $_POST["password"] = $this->password;
         $_POST["usr"] = $this->username;
-
-}
-    
-    public function __destruct() {
-        //setcookie("nombreSesion", -0);
-        //session_destroy();
-        //$_SESSION=[];
     }
     
+    public function __destruct() {
+    }
     
     // Getter para obtener el ID
     public function getId() {
