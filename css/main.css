@@ -43,6 +43,10 @@ body, html {
 }
 
 /*---------------------------------------------*/
+.min_container{
+    min-width: 1000px; 
+}
+
 a {
 	font-family: Poppins-Regular;
 	font-size: 14px;

@@ -59,7 +59,7 @@ class Usuario {
     }
     
     public function iniciarCookieSesion() {
-    setcookie("ultCone", date("Y-m-d H:i:s"),time() + 30, 'localhost');
+    setcookie("ultCone", date("Y-m-d H:i:s"),time() + 3000, 'localhost');
     }
     
     public function actualizarPost(&$post_aux) {

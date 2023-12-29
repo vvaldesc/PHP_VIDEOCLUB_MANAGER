@@ -176,14 +176,13 @@ function crearInstanciasActores($tabla, &$maxID) {
 
 function crearInstanciasAdminsAux($tabla) {
     $arrAdmins = array();
-    $arrAux = array();
     foreach ($tabla as $admin) {
         $usuarioAux = new Usuario(
                 $admin["id"],
                 $admin["username"],
                 null,
                 null,
-                $arrAux,
+                array(),
                 false
         );
         array_push($arrAdmins, $usuarioAux);
