@@ -66,10 +66,10 @@ function imprimirAtributosInput($columna, $valor, &$id) {
             $id = $valor;
             break;
         case "titulo": case "genero": case"pais": case"anyo":
-            $htmlTd .= '<input class="form-control" type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($columna) . '">';
+            $htmlTd .= '<input class="form-control" type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($columna) . '" required>';
             break;
         case "cartel":
-            $htmlTd .= '<input class="form-control" type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($columna) . '">';
+            $htmlTd .= '<input class="form-control" type="text" value="' . $valor . '" name="modificarInput_' . ucfirst($columna) . '" required>';
             break;
         default:
             break;
