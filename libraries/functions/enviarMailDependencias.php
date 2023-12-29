@@ -37,11 +37,11 @@ try {
     $mail->Port = 465;
     $mail->Timeout = 5;
 
-    $mail->setFrom('concesionarioconce@gmail.com');
+    $mail->setFrom('videoclubtalavera@gmail.com');
     $mail->addAddress($_SESSION["mailReceptor"]); // Cambia esto al destinatario real
 
     $mail->isHTML(false);
-    $mail->Subject = "Inicio de sesion con tu cuenta";
+    $mail->Subject = "Mensaje desde un cliente de videoClubTalavera";
     $mail->Body = $_SESSION["mensaje"];
 
     $mail->send();

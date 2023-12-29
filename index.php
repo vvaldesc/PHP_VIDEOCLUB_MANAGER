@@ -1,9 +1,8 @@
 <?php 
     include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
-    session_start();
+    //session_start();
     $formError = (isset($_GET["usr"]));
-    setcookie("ultCone",null,time() + 3000, 'localhost');
-    if (isset($_GET['logout']) && $_GET['logout']==true) cerrarSesion();
+    setcookie("ultCone", date("H:i:s"),time() + 86400, 'localhost');
     if (isset($_GET['mensajeNoExisteUsr']) && $_GET['mensajeNoExisteUsr']==true) echo mensajeError("El usuario ".urldecode($_GET["usr"])." no existe o la contraseña es incorrecta");
 ?>
 
@@ -49,6 +48,7 @@
                                             </span>   
                                                                                        
                                             <div class="wrap-input100 validate-input" data-validate = "Valid email is: a@b.c">
+                                                <!-- Si existe el usuario en get, lo decodifico y lo muestro -->
                                                 <input class="input100" value="<?= $formError===true ? urldecode($_GET["usr"]) : "" ?>" type="text" name="usr">
                                                 <span class="focus-input100" data-placeholder="Email"></span>
                                             </div>

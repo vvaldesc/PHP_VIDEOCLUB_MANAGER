@@ -39,8 +39,8 @@ function direccionMail($id) {
 function inputsFormularioMailAdmin($tablaAdmins) {
     return imprimirTablaPeliculas($tablaAdmins, null, null, $arrActoresParo, true, true) .
             '<div class="form-group">
-                <label for="exampleFormControlTextarea1">Example textarea</label>
-                <textarea name="mensajeMail" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                <label class="text-white" for="exampleFormControlTextarea1">Algún problema? contacta con nosotros</label>
+                <textarea name="mensajeMail" class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
             </div>';
 }
 
@@ -205,6 +205,7 @@ function crearInstanciasAdminsAux($tabla) {
  * @return string
  */
 function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaRelacion = null, &$arrActoresParo, $tablaNoFuncional = null, $enviarMail = false) {
+    
     if (empty($arrPeliculas))
         return '';
     if ($arrTablaRelacion !== null)
@@ -216,6 +217,7 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
     }
     $html = '<table class="table text-white">';
     $html .= '<thead><tr>';
+    
     if (is_object($arrPeliculas[0])) {
         foreach (($arrPeliculas[0]->toArray()) as $columna => $valor) {
             if ($valor !== null)
@@ -233,20 +235,33 @@ function imprimirTablaPeliculas($arrPeliculas, $arrTablaExtra = null, $arrTablaR
     for ($i = 0; $i < count($arrPeliculas); $i++) {
         $html .= '<tr>';
         $arrAtributos = $arrPeliculas[$i]->toArray();
+        
         foreach ($arrAtributos as $nombre => $valor) {
-            isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"]
-                    ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido, $arrAtributos["id"]))
-                    : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
-        }
+            if($valor!=null && $valor!=""){
+                isset($_POST["mostrarInputsPelicula_ID"]) && $_POST["mostrarInputsPelicula_ID"] == $arrAtributos["id"]
+                        ? $html .= entornoTd(entornoInputsModificarPelicula(imprimirAtributosInput($nombre, $valor, $id), $imprimido, $arrAtributos["id"]))
+                        : $html .= entornoTd(imprimirAtributosMostrar($nombre, $valor, $id));
+                }
+            }
+        
         $esAdmin === true ? $html .= imprimirControlesTabla($arrAtributos["id"], false) : null;
+        
         if ($enviarMail)
-            $html .= imprimirControlMail($arrAtributos["id"]);
+            $html .= entornoTd(imprimirControlMail($arrAtributos["id"]));
         $html .= '</tr>';
+        
         // se deberia imprimir un td con el maximo colspan, y dentro de esto una tabla para el reparto
         if ($arrTablaExtra !== null) {
-            $html .= entornoTr(entornoTd(entornoCajaFlex(imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion, $arrIdActores)))), count($arrPeliculas[0]->toArray()) + 3));
+            $repartoHtml = imprimirReparto(filtraTablaId($arrTablaExtra, filtroTablaRelacional($id, $arrTablaRelacion, $arrIdActores)));
+            $colspan = $esAdmin ? count($arrPeliculas[0]->toArray())+3 : count($arrPeliculas[0]->toArray());
+            $repartoTd = entornoTd(entornoCajaFlex($repartoHtml), $colspan);
+            $repartoTr = entornoTr($repartoTd);
+
+            $html .= $repartoTr;
+
             $arrActoresParo = array_unique(array_merge($arrActoresParo, $arrIdActores));
         }
+
     }
     $html .= '</tbody></table>';
     return $html;
@@ -256,7 +271,7 @@ function anadirListaParo($innerHtml = null, $arrActoresParoID, $arrActores) {
     if ($innerHtml === null)
         $innerHtml = '';
     if (isset($arrActoresParoID) && count($arrActoresParoID) > 0) {
-        $innerHtml .= '<h1>Actores en paro</h1>';
+        $innerHtml .= '<h3 class="text-white m-4 mb-4">Actores en paro</h3>';
         $arrActoresParo = filtraTablaId($arrActores, $arrActoresParoID, true);
         return $innerHtml .= imprimirTablaPeliculas($arrActoresParo, null, null, $arrActoresParoID, true);
     } else {
@@ -296,6 +311,35 @@ function obtenerID($key) {
     return strpos($key, "_") !== false ? substr($key, strpos($key, "_") + 1) : $key;
 }
 
+function validarNuevaPelicula() {
+    // Verifica que todos los campos estén set y no sean cadenas vacías
+    foreach ($_POST as $clave => $valor) {
+        if (strpos($clave, "nuevaPelicula_") === 0 && (!isset($valor) || $valor === '')) {
+            $_POST["formAnadirError"]=true;
+            echo mensajeError("El parámetro ".$clave." está vacío");
+            return false;
+        }
+    }
+
+    // Verificar que nuevaPelicula_Anyo es un número de 4 dígitos
+    if (!preg_match('/^\d{4}$/', $_POST['nuevaPelicula_Anyo'])) {
+        $_POST["formAnadirError"]=true;
+        echo mensajeError("El año no es válido");
+        return false;
+    }
+
+    // Verificar que nuevaPelicula_Cartel contenga .jpg
+    if (strpos($_POST['nuevaPelicula_Cartel'], '.jpg') === false) {
+        $_POST["formAnadirError"]=true;
+        return false;
+        echo mensajeError("El directorio no contiene la extensión .jpg");
+    }
+
+    // Si todas las condiciones se cumplen, los datos son válidos
+    return true;
+}
+
+
 /**
  * I/O Parameter used to get proper info about how Data Base is going to be modified.
  * It checks multiple deletions too
@@ -326,8 +370,12 @@ function funcionalidadPeliculas(&$funcionalidadID) {
         // Check other functionalities based on $_POST keys.
         if (strpos($key, "anadirPelicula") === 0) {
             // Return the "anadirPelicula" functionality.
-            $funcionalidadID = array("funcion" => "anadirPelicula");
-            return "anadirPelicula";
+            if (validarNuevaPelicula()){
+                $funcionalidadID = array("funcion" => "anadirPelicula");
+                return "anadirPelicula";}
+            else {
+                return "";
+            }
         } else if (strpos($key, "eliminarActor") === 0) {
             $id = obtenerID($key);
             $funcionalidadID = array("funcion" => "eliminarActor", "id" => $id);
@@ -394,9 +442,4 @@ function eliminarPeliculas($funcionalidadID) {
     eliminarDatos("actuan", "idpelicula", $valores);
     // Eliminar datos utilizando el valor o la combinación de valores
     eliminarDatos("peliculas", "id", $valores);
-}
-
-function cerrarSesion () {
-    session_destroy();
-    $_SESSION[]=array();
 }

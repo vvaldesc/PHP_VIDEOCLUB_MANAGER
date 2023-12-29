@@ -29,10 +29,10 @@ class Usuario {
             new Log($id, $username, $error = false) && $this->actualizarSesion($sesion_aux, true);
         }
         //$this->actualizarPost($_POST);
-        //$this_>iniciarCookieSesion();
+        $this->iniciarCookieSesion();
     }
     
-    private function toArray(){
+    public function toArray(){
         return get_object_vars($this);
     }
     
@@ -58,8 +58,8 @@ class Usuario {
         $sesion_aux['rol'] = $this->rol;
     }
     
-    public function iniciarCookieSesion(&$sesion_aux) {
-        setcookie("nombreSesion", $this->username, time() + 300, "/");
+    public function iniciarCookieSesion() {
+        if(!isset($_COOKIE["ultCone"])) setcookie("ultCone",date("H:i:s"),time() + 86400, 'localhost');
     }
     
     public function actualizarPost(&$post_aux) {
