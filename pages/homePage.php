@@ -66,6 +66,7 @@
             <main class="container m-auto text-center">                 
 
                 <?php 
+
                     //Imprimer cookie si existe
                     echo '<h2 class="text-white m-2 mb-4">Última conexión: ' . (isset($_COOKIE["ultCone"]) ? $_COOKIE["ultCone"] : '') . '</h2>';
                 

@@ -6,5 +6,7 @@
       <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">FAQs</a></li>
       <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">About</a></li>
     </ul>
+    <?php echo phpversion();
+    echo $_SERVER['SERVER_SOFTWARE'];?>
     <p class="text-center text-muted">&copy; 2023 VideoTala, Inc</p>
   </footer>
