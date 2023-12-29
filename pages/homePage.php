@@ -34,7 +34,9 @@
         isset($_POST["usr"]) ? $url = '../index.php?formError=true&usr=' . urlencode($_POST["usr"]) .'&mensajeNoExisteUsr=true' : $url = '../index.php?formError=true';
         $_SESSION=[];
         session_destroy();
-        setcookie("ultCone", null, time() - 3600, 'localhost');
+        //Sintaxis de fusión, si la cookie no existe no hay mensaje de error.
+        setcookie("ultCone", null, time() - 3600, 'localhost') ?? null;
+        setcookie(session_name(), '', time() - 3600, '/') ?? null;
         header('Location: '.$url);
         exit();
     }
@@ -50,31 +52,11 @@
         <title>Iniciar Sesión - Videoclub</title>
 
 
-        <!-- Agrega el enlace al archivo CSS de Bootstrap -->
-        <!--===============================================================================================-->	
-        <link rel="icon" type="image/png" href="../images/icons/favicon.ico"/>
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="../vendor/bootstrap/css/bootstrap.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="../assets/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="../assets/fonts/iconic/css/material-design-iconic-font.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="../vendor/animate/animate.css">
-        <!--===============================================================================================-->	
-        <link rel="stylesheet" type="text/css" href="../vendor/css-hamburgers/hamburgers.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="../vendor/animsition/css/animsition.min.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
-        <!--===============================================================================================-->	
-        <link rel="stylesheet" type="text/css" href="../vendor/daterangepicker/daterangepicker.css">
-        <!--===============================================================================================-->
-        <link rel="stylesheet" type="text/css" href="../css/util.css?1.0" media="all" >
-        <link rel="stylesheet" type="text/css" href="../css/main.css?1.0" media="all" >
-        <!--===============================================================================================-->
 
 
+        <?php require '../templates/styleLinksRel.php';?>
+
+        
     </head>
     <body class="bg-dark">
         <div class="min_container container mx-auto mt-5">
@@ -85,7 +67,7 @@
 
                 <?php 
                     //Imprimer cookie si existe
-                    echo '<h1 class="text-white">' . (isset($_COOKIE["ultCone"]) ? $_COOKIE["ultCone"] : '') . '</h1>';
+                    echo '<h2 class="text-white m-2 mb-4">Última conexión: ' . (isset($_COOKIE["ultCone"]) ? $_COOKIE["ultCone"] : '') . '</h2>';
                 
                     //Extrae todos los actores, true indica que se extrae un array asociativo (OPCIONAL)
                     $tablaActuan = extraerTablas("SELECT * FROM ACTUAN", true);
@@ -110,6 +92,7 @@
                     
                     if ($esRolAdmin) {
                         // Acciones específicas para administradores
+                        // en entornoFormulario se aplica la funcionalidad de añadir película
                         echo entornoFormularioPrincipal(//  Preparo todos los posts necesarios junto al formulario
                             anadirListaParo(//  Añado la lista de actores en paro
                                 imprimirTablaPeliculas($arrPeliculas, $arrActores, $tablaActuan, $arrActoresParo),//  Imprimo todas las películas
@@ -131,37 +114,18 @@
                         // Imprimo el formulario y la tabla
                         echo entornoFormulario(
                                 inputsFormularioMailAdmin($arrAdmins),//  Dentro llama a imprimirTablaPeliculas()
-                                $miUsuario
-                        );
+                                $miUsuario);
                     }
 
                 ?>
                 
             </main>
-            <!-- Aquí va el contenido de tu página -->
         <?php include '../templates/footer.php'; ?>
-        </div>
-        <!-- Section: Design Block -->
         
 
     </div>
+        <?php require '../templates/scriptLinksRel.php';?>
 
-    <!--===============================================================================================-->
-    <script src="../vendor/jquery/jquery-3.2.1.min.js"></script>
-    <!--===============================================================================================-->
-    <script src="../vendor/animsition/js/animsition.min.js"></script>
-    <!--===============================================================================================-->
-    <script src="../vendor/bootstrap/js/popper.js"></script>
-    <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
-    <!--===============================================================================================-->
-    <script src="../vendor/select2/select2.min.js"></script>
-    <!--===============================================================================================-->
-    <script src="../vendor/daterangepicker/moment.min.js"></script>
-    <script src="../vendor/daterangepicker/daterangepicker.js"></script>
-    <!--===============================================================================================-->
-    <script src="../vendor/countdowntime/countdowntime.js"></script>
-    <!--===============================================================================================-->
-    <script src="../js/main.js"></script>
 
 </body>
 </html>

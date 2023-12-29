@@ -32,7 +32,7 @@ class Usuario {
         $this->iniciarCookieSesion();
     }
     
-    private function toArray(){
+    public function toArray(){
         return get_object_vars($this);
     }
     
@@ -59,7 +59,7 @@ class Usuario {
     }
     
     public function iniciarCookieSesion() {
-    setcookie("ultCone", date("Y-m-d H:i:s"),time() + 3000, 'localhost');
+        if(!isset($_COOKIE["ultCone"])) setcookie("ultCone",date("H:i:s"),time() + 86400, 'localhost');
     }
     
     public function actualizarPost(&$post_aux) {

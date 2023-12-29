@@ -1,9 +1,8 @@
 <?php 
     include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
-    session_start();
+    //session_start();
     $formError = (isset($_GET["usr"]));
-    setcookie("ultCone", date("Y-m-d H:i:s"),time() + 3000, 'localhost');
-    if (isset($_GET['logout']) && $_GET['logout']==true) cerrarSesion();
+    setcookie("ultCone", date("H:i:s"),time() + 86400, 'localhost');
     if (isset($_GET['mensajeNoExisteUsr']) && $_GET['mensajeNoExisteUsr']==true) echo mensajeError("El usuario ".urldecode($_GET["usr"])." no existe o la contraseña es incorrecta");
 ?>
 
@@ -14,6 +13,28 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <title>Iniciar Sesión - Videoclub</title>
+        
+        <!-- Agrega el enlace al archivo CSS de Bootstrap -->
+        <!--===============================================================================================-->
+        <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+        <!--===============================================================================================-->
+        <link rel="stylesheet" type="text/css" href="assets/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+        <!--===============================================================================================-->
+        <link rel="stylesheet" type="text/css" href="assets/fonts/iconic/css/material-design-iconic-font.min.css">
+        <!--===============================================================================================-->
+        <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+        <!--===============================================================================================-->	
+        <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+        <!--===============================================================================================-->
+        <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+        <!--===============================================================================================-->
+        <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+        <!--===============================================================================================-->	
+        <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+        <!--===============================================================================================-->
+        <link rel="stylesheet" type="text/css" href="css/util.css?1.0" media="all" >
+        <link rel="stylesheet" type="text/css" href="css/main.css?1.0" media="all" >
+        <!--===============================================================================================-->
         
         <?php require './templates/styleLinks.php';?>
         
@@ -49,6 +70,7 @@
                                             </span>   
                                                                                        
                                             <div class="wrap-input100 validate-input" data-validate = "Valid email is: a@b.c">
+                                                <!-- Si existe el usuario en get, lo decodifico y lo muestro -->
                                                 <input class="input100" value="<?= $formError===true ? urldecode($_GET["usr"]) : "" ?>" type="text" name="usr">
                                                 <span class="focus-input100" data-placeholder="Email"></span>
                                             </div>

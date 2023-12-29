@@ -39,12 +39,12 @@ function entornoFormulario($innerForm,$miUsuario) {
 function imprimirAtributosMostrar($columna, $valor, &$id) {
     $htmlTd = '';
     if ($columna === 'cartel') {
-        $htmlTd .= '<img class="img-thumbnail w-50 h-50" src="../assets/img/carteles/' . $valor . '" alt="Cartel">';
+        $htmlTd .= '<img class="img-thumbnail" style="width: 160px; height: 240px;" src="../assets/img/carteles/' . $valor . '" alt="Cartel">';
     } else if ($columna === 'id') {
         $htmlTd .= $valor;
         $id = $valor;
     } else {
-        $htmlTd .= '<p class="text-white">' . $valor . '</p>';
+        $htmlTd .= '<p class="text-lg text-white">' . $valor . '</p>';
     }
     return $htmlTd;
 }
@@ -103,10 +103,7 @@ function entornoInputsModificarPelicula($innerHTML, &$imprimido, $idPelicula) {
  * @return string
  */
 function imprimirControlMail($idAdmin) {
-    $html = '';
-    $html .= '<td>';
-    $html .= '<button type="submit" class="btn btn-primary" name="enviarMailId_' . $idAdmin . '">Enviar</button>';
-    $html .= '</td>';
+    $html = '<button type="submit" class="btn btn-primary" name="enviarMailId_' . $idAdmin . '">Enviar</button>';
     return $html;
 }
 
@@ -156,13 +153,13 @@ function imprimirReparto($arrActores) {
             $key = array_keys($arrActor)[$j];
             switch ($key) {
                 case "nombre":
-                    $html .= '<p class="text-white">' . $arrActor["nombre"] . '</p>';
+                    $html .= '<h3 class="small text-white">' . $arrActor["nombre"] . '</h3>';
                     break;
                 case "fotografia":
                     $html .= '<img class="img-thumbnail img-fluid" style="width: 120px; height: 170px" src="../assets/img/actores/' . $arrActor["fotografia"] . '" alt="Actor">';
                     break;
                 case "apellidos":
-                    $html .= '<p class="text-white">' . $arrActor["apellidos"] . '</p>';
+                    $html .= '<h5 class="small text-white">' . $arrActor["apellidos"] . '</h5>';
                     break;
                 default:
                     break;
@@ -229,7 +226,7 @@ function imprimirIndicesControlesTabla($max) {
  * @return string HTML for table header cell
  */
 function imprimirIndiceControlMail($max) {
-    $html = '<th scope="col">' . $max . '</th>';
+    $html = '<th scope="col"></th>';
     return $html;
 }
 
@@ -255,29 +252,32 @@ function mensajeError($message) {
  * @return string HTML for the movie addition input fields
  */
 function inputsAnadirPelicula() {
+    $formAnadirError = isset($_POST["formAnadirError"]) ? true : false;
+    
     return $formulario = '
         <div class="form-group">
-            <label for="nombre">Título</label>
-            <input name="nuevaPelicula_Titulo" type="text" class="form-control" id="titulo" placeholder="Título">
+            <label for="titulo">Título</label>
+            <input name="nuevaPelicula_Titulo" value="' . ($formAnadirError && isset($_POST["nuevaPelicula_Titulo"]) ? $_POST["nuevaPelicula_Titulo"] : '') . '" type="text" class="form-control" id="titulo" placeholder="Título">
         </div>
         <div class="form-group">
-            <label for="apellidos">Género</label>
-            <input name="nuevaPelicula_Genero" type="text" class="form-control" id="genero" placeholder="Genero">
+            <label for="genero">Género</label>
+            <input name="nuevaPelicula_Genero" value="' . ($formAnadirError && isset($_POST["nuevaPelicula_Genero"]) ? $_POST["nuevaPelicula_Genero"] : '') . '" type="text" class="form-control" id="genero" placeholder="Género">
         </div>
         <div class="form-group">
-            <label for="domicilio">Pais</label>
-            <input name="nuevaPelicula_Pais" type="text" class="form-control" id="pais" placeholder="Pais">
+            <label for="pais">País</label>
+            <input name="nuevaPelicula_Pais" value="' . ($formAnadirError && isset($_POST["nuevaPelicula_Pais"]) ? $_POST["nuevaPelicula_Pais"] : '') . '" type="text" class="form-control" id="pais" placeholder="País">
         </div>
         <div class="form-group">
-            <label for="domicilio">Año</label>
-            <input name="nuevaPelicula_Anyo" type="number" class="form-control" id="anyo" placeholder="Año">
+            <label for="anyo">Año</label>
+            <input name="nuevaPelicula_Anyo" value="' . ($formAnadirError && isset($_POST["nuevaPelicula_Anyo"]) ? $_POST["nuevaPelicula_Anyo"] : '') . '" type="number" class="form-control" id="anyo" placeholder="Año">
         </div>
         <div class="form-group">
-            <label for="domicilio">Cartel</label>
-            <input name="nuevaPelicula_Cartel" type="text" class="form-control" id="cartel" placeholder="Cartel">
+            <label for="cartel">Cartel</label>
+            <input name="nuevaPelicula_Cartel" value="' . ($formAnadirError && isset($_POST["nuevaPelicula_Cartel"]) ? $_POST["nuevaPelicula_Cartel"] : '') . '" type="text" class="form-control" id="cartel" placeholder="Cartel">
         </div>
     ';
 }
+
 
 /**
  * Generates HTML for the button to open the modal to add a new movie
@@ -298,7 +298,7 @@ function botonModalAnadirPelicula() {
  */
 function modalAnadirPelicula() {
     return $html = botonModalAnadirPelicula() . '
-        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenter" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -339,7 +339,6 @@ function imprimirInputsHiddenForm($datosEnviar) {
  * @return type
  */
 function entornoFormularioPrincipal($innerForm, $miUsuario, $maxIDPeliculas) {
-
     return ''
             . '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">'
             . $innerForm
