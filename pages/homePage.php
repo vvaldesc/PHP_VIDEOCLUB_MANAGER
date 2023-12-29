@@ -1,13 +1,13 @@
 <?php
     include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
     include_once $_SERVER['DOCUMENT_ROOT'] . '/Ejercicios_UT6_1_Victor_Valdes_Cobos/templates/funcionesTemplate.php';
-
     
     session_start();
     if (isset($_POST["miUsuario"])) {
         $miUsuario = unserialize(base64_decode($_POST["miUsuario"]));
         $miUsuario->actualizarPost($_POST);
         $miUsuario->actualizarSesion($_SESSION,false);
+        $miUsuario->iniciarCookieSesion();
     }   else{
         $_POST["password"]=hash('sha256', $_POST['password']);
     }
@@ -19,9 +19,10 @@
         if (isset($_POST["usr"])) unset ($_POST["usr"]);
     } else{
         crearInstanciaLogError($_POST["usr"]);
-        isset($_POST["usr"]) ? $url = '../index.php?formError=true&usr=' . urlencode($_POST["usr"]) .'&mensajeNoExisteUsr=true' : $url = '../index.php?formError=true';;
+        isset($_POST["usr"]) ? $url = '../index.php?formError=true&usr=' . urlencode($_POST["usr"]) .'&mensajeNoExisteUsr=true' : $url = '../index.php?formError=true';
         $_SESSION=[];
         session_destroy();
+        setcookie("ultCone", null, time() - 3600, 'localhost');
         header('Location: '.$url);
         exit();
     }

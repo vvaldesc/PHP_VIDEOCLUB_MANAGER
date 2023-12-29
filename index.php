@@ -2,7 +2,7 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/Ejercicios_UT6_1_Victor_Valdes_Cobos/libraries/functions/funciones.php';
     session_start();
     $formError = (isset($_GET["usr"]));
-    setcookie("ultCone",null,time() + 3000, 'localhost');
+    setcookie("ultCone", date("Y-m-d H:i:s"),time() + 30, 'localhost');
     if (isset($_GET['logout']) && $_GET['logout']==true) cerrarSesion();
     if (isset($_GET['mensajeNoExisteUsr']) && $_GET['mensajeNoExisteUsr']==true) echo mensajeError("El usuario ".urldecode($_GET["usr"])." no existe o la contraseña es incorrecta");
 ?>
